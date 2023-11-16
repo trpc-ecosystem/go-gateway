@@ -11,7 +11,7 @@
 //
 //
 
-// Package plugin 网关插件定义
+// Package plugin defines gateway plugins.
 package plugin
 
 import (

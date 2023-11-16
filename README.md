@@ -1,7 +1,6 @@
 # tRPC-Gateway
 
-[![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=flat-square)](https://trpc.group/trpc-go/trpc-gateway)
-
+[![LICENSE](https://img.shields.io/badge/license-Apache--2.0-green.svg)](https://github.com/trpc-group/trpc-gateway/blob/main/LICENSE)
 ## Table of Contents
 
 <!-- TOC -->
@@ -13,12 +12,10 @@
     * [Running Local Demo](#running-local-demo)
     * [Deployment on with etcd](#deployment-on-with-etcd)
   * [Routing Configuration](#routing-configuration)
-* [TODO](#todo)
   * [Gateway Plugin Development](#gateway-plugin-development)
     * [List of Common Plugins](#list-of-common-plugins)
   * [Forwarding Protocol Support](#forwarding-protocol-support)
       * [Does it support trpc -> trpc protocol forwarding?](#does-it-support-trpc----trpc-protocol-forwarding)
-  * [Responsible Persons](#responsible-persons)
   * [How to Contribute](#how-to-contribute)
 <!-- TOC -->
 
@@ -56,8 +53,6 @@ See [example/README.md](example/loader/file/README.md)
 3. Deploy the service with framework configuration, refer to [trpc_go.yaml](example/loader/etcd/trpc_go.yaml)
 
 ## Routing Configuration
-
-# TODO 
 
 Modify the router.yaml file to configure the forwarding of your own interfaces. For more details, see [Routing Configuration](core/router/README.md)
 
@@ -99,10 +94,6 @@ Supported forwarding protocols:
 No, it doesn't support trpc -> trpc protocol forwarding because it would require writing separate plugin logic to support both HTTP and trpc protocols, which would increase complexity.
 
 If the caller expects to use the trpc pb client for calling, you can use the http -> trpc forwarding method. There is no difference in the caller's code, except that the caller's protocol can only use http.
-
-## Responsible Persons
-
-yunlongxiao@tencent.com, quonliu@tencent.com
 
 ## How to Contribute
 
