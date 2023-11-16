@@ -64,7 +64,7 @@ You can extend the functionality of the gateway through plugins. See [Gateway Pl
 
 * [x] [CORS](plugin/cors)
 * [x] [access log](plugin/accesslog)
-* [ ] [limiter](plugin/limiter/polaris)
+* [x] [limiter](plugin/limiter/polaris)
 * [x] [request_transformer](plugin/transformer/request)
 * [x] [response_transformer](plugin/transformer/response)
 * [x] [batch_request](plugin/batchrequest)
