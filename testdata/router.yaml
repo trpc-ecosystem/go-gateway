@@ -1,0 +1,113 @@
+router:
+  - method: /user/info # host is r.inews.qq.com
+    id: /user/info1
+    host:
+      - r.inews.qq.com
+    is_regexp: false
+    rule:
+      conditions:
+        - key: devid
+          val: xxxx,yyyyy
+          oper: in
+      expression: "0"
+    target_service:
+      - service: trpc.inews.user.User
+        weight: 10
+        rewrite: /user/info
+        strip_path: true
+      - service: trpc.inews.user.UserV2
+        weight: 10
+    hash_key: ""
+    rewrite: ""
+    strip_path: false
+    plugins:
+      - name: tnewsauth # Route-level plugin: News client authentication plugin
+        props:
+          insert_position:
+          suid_name: suid_params  # Interface suid parameter name, placed in the first-level configuration suid, nested interfaces are separated by '.'
+          force_auth: true  # Whether to force authentication, return directly if authentication fails
+          force_auth_fail_body: '{"code":1,"msg":"failed"}' # Error body returned when forced authentication fails
+  - method: /user/info # host is qq.com
+    id: /user/info2
+    host:
+      - qq.com
+    is_regexp: false
+    rule: null
+    target_service:
+      - service: trpc.inews.user.User
+        weight: 10
+    hash_key: ""
+    rewrite: ""
+    plugins:
+      - name: tnewswebauth # Route-level plugin: Tencent web authentication plugin
+        props:
+          insert_position:
+          suid_name: suid_params  # Interface suid parameter name, placed in the first-level configuration suid, nested interfaces are separated by '.'
+          force_auth: true  # Whether to force authentication, return directly if authentication fails
+          force_auth_fail_body: '{"code":1,"msg":"failed"}' # Error body returned when forced authentication fails
+  - method: /user/info # empty host configuration
+    id: /user/info3
+    # Only report method, not path, to prevent explosion of dimensions for interfaces like /a/{article_id}
+    report_method: true
+    host:
+    rewrite: "/user/infoV2"
+    is_regexp: false
+    target_service:
+      - service: trpc.inews.user.User
+        weight: 10
+  - method: /user/info4 # empty host configuration
+    id: /user/info4
+    host:
+    is_regexp: false
+    target_service:
+      - service: trpc.inews.user.User
+        weight: 10
+  - method: /user_prefix/ # empty host configuration
+    id: /user_prefix/
+    report_method: true
+    is_regexp: false
+    target_service:
+      - service: trpc.inews.user.User
+        weight: 10
+  - method: /user/
+    id: /user/1
+    target_service:
+      - service: trpc.inews.user.User
+        weight: 10
+    hash_key: ""
+    strip_path: true
+    rewrite: ""
+  - method: ^/feed/
+    id: ^/feed/1
+    host:
+    is_regexp: true
+    rule: null
+    target_service:
+      - service: trpc.inews.user.User
+        weight: 10
+    hash_key: ""
+    rewrite: ""
+client:
+  - name: trpc.inews.user.User
+    disable_servicerouter: false
+    namespace: Production
+    target: polaris://trpc.inews.user.User
+    network: tcp
+    timeout: 500
+    protocol: fasthttp
+    serialization: null
+    plugins:
+      - name: auth # Service-level plugin: Signature plugin
+        props:
+  - name: trpc.inews.user.UserV2
+    namespace: Production
+    target: polaris://trpc.inews.user.User
+    network: tcp
+    timeout: 500
+    protocol: fasthttp
+    plugins:
+      - name: auth # Service-level plugin: Signature plugin
+        props:
+plugins:
+  - name: proxyinfo # Global configuration plugin: Proxy information reporting
+    props:

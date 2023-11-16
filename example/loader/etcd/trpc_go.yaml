@@ -1,0 +1,58 @@
+global: # Global configuration
+  namespace: ${namespace}                # Environment type, either Production or Development
+  env_name: ${env_name}                    # Environment name for non-production environments
+  container_name: ${container_name} # Container name
+  local_ip: ${local_ip}                            # Local IP, container IP for containers, host IP for physical or virtual machines
+  conf_provider: etcd        # Configuration storage method for router, plugins, etc., supports file, etcd, consul etc.
+
+server:
+  app: ${app}                                                # Application name for the business
+  server: ${server}                                         # Server name for the process
+  bin_path: /usr/local/trpc/bin/                    # Path to the binary executable and framework configuration files
+  conf_path: /usr/local/trpc/conf/                # Path to the business configuration files
+  data_path: /usr/local/trpc/data/                # Path to the data files
+  filter: # Global filters are configured here, all interfaces will execute these filters. Place trpc-go filters here
+  admin:
+    ip: ${local_ip}      # IP address, can use local_ip or trpc_admin_ip
+    port: ${ADMIN_PORT}  #
+    read_timeout: 3000   # ms. Timeout for reading the complete request information after the request is accepted, to prevent slow clients
+    write_timeout: 60000 # ms. Timeout for processing the request
+  service: # Services provided by the business, can have multiple services
+    - name: trpc.gateway.service   # Routing name for the service, replace ReplaceMe with your own service name, do not change app server placeholders
+      network: tcp                                              # Network listening type: tcp or udp
+      protocol: fasthttp                                            # Application layer protocol: trpc or http
+      timeout: 8000                                            # Maximum processing time for requests in milliseconds
+      registry: polaris                                          # Service registration method used during service startup
+      ip: ${ip}                                                      # Container IP
+      port: 8080
+      max_cons: 100000                # Maximum number of connections for the service, default is 256*1024 if not specified
+      max_cons_per_ip: 10000          # Maximum number of connections per IP, default is unlimited
+      max_request_body_size: 8M     # Maximum request body size, unit can be k, m, g, or kb, mb, gb, etc. (case-insensitive), default is 4M
+      read_buffer_size: 32K            # Read buffer size, default is 4096 bytes
+      filter: # Gateway plugin configuration is done here. Only interfaces configured in router.yaml will execute the corresponding plugins
+        - demo
+client:
+  filter:
+  namespace: ${namespace}
+  timeout: 7000
+
+plugins:
+  config:
+    etcd:
+      endpoints: ["http://127.0.0.1:2380"]
+  gateway: # Gateway plugin configuration
+    demo:
+  log:
+    default:
+      - writer: console                           # Console standard output, default
+        level: debug                              # Log level for standard output
+      - writer: file                                 # Local file log
+        level: debug                                  # Log level for local file rolling log
+        writer_config: # Specific configuration for local file output
+          log_path: ${log_path}              # Local file log path
+          filename: trpc.log                    # Local file log filename
+          roll_type: size                          # File rolling type, size for size-based rolling
+          max_age: 7                              # Maximum number of days to retain logs
+          max_size: 10                            # Maximum size of rolling log file in MB
+          max_backups: 10                     # Maximum number of log files
+          compress: false                       # Whether to compress log files

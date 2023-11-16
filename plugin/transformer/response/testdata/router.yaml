@@ -1,0 +1,103 @@
+router:
+  - method: /user/info
+    target_service:
+      - service: trpc.inews.user.User
+    plugins:
+      - name: response_transformer
+        props:
+          remove_headers:
+            - keys:
+                - header_to_remover
+              status_codes:
+                - 401
+              trpc_codes:
+                - 5000
+          remove_json:
+            - keys:
+                - header_to_remover
+              status_codes:
+                - 401
+              trpc_codes:
+                - 5000
+          rename_headers:
+            - keys:
+                - k:v
+              status_codes:
+                - 401
+              trpc_codes:
+                - 5000
+          rename_json:
+            - keys:
+                - k:v:string
+              status_codes:
+                - 401
+              trpc_codes:
+                - 5000
+          add_headers:
+            - keys:
+                - k:v
+              status_codes:
+                - 401
+              trpc_codes:
+                - 5000
+          add_json:
+            - keys:
+                - k:true:bool
+              status_codes:
+                - 401
+              trpc_codes:
+                - 5000
+          replace_headers:
+            - keys:
+                - k:v
+              status_codes:
+                - 401
+              trpc_codes:
+                - 5000
+          replace_json:
+            - keys:
+                - k:123:number
+              status_codes:
+                - 401
+              trpc_codes:
+                - 5000
+          append_headers:
+            - keys:
+                - k:v
+              status_codes:
+                - 401
+              trpc_codes:
+                - 5000
+          append_json:
+            - keys:
+                - k:v:string
+              status_codes:
+                - 401
+              trpc_codes:
+                - 5000
+          replace_body:
+            - keys:
+                - '{"code":401}'
+              status_codes:
+                - 401
+              trpc_codes:
+                - 5000
+          allow_json:
+            - keys:
+                - code
+                - msg
+                - data
+              status_codes:
+                - 401
+              trpc_codes:
+                - 5000
+client:
+  - name: trpc.inews.user.User
+    disable_servicerouter: false
+    namespace: Production
+    target: polaris://trpc.inews.user.User
+    network: tcp
+    timeout: 500
+    protocol: fasthttp
+    serialization: null
+plugins:

@@ -1,0 +1,1536 @@
+router:
+  - method: /gw/msgbox/
+    #is_regexp: true
+    target_service:
+      - service: trpc.inews.message.Message
+        weight: 10
+  - method: /(updateCollList|getCollListitems)
+    is_regexp: true
+    target_service:
+      - service: collect.inews.qq.com
+        weight: 10
+  - method: /gw/vauth/
+    target_service:
+      - service: trpc.inews.vauth.VAuth
+        weight: 10
+  - method: /gw/msg/
+    target_service:
+      - service: trpc.inews.message.Message
+        weight: 10
+  - method: /i/getUserHomepageInfo
+    target_service:
+      - service: trpc.inews.user_front.UserFront
+        weight: 10
+  - method: /getSubItem
+    target_service:
+      - service: trpc.inews.php_sumeru.main_port
+        weight: 10
+  - method: /getSubItem
+    rule:
+      conditions:
+        - key: articleType
+          val: 220,221
+          oper: in
+      expression: "0"
+    target_service:
+      - service: trpc.inews.user_front.UserFront
+        weight: 10
+  - method: /getCommentUserInfo
+    target_service:
+      - service: trpc.inews.user_front.UserFrontSlow
+        weight: 10
+  - method: /getSubNewsMixedList
+    rule:
+      conditions:
+        - key: tabId
+          val: om_index,om_article,om_video,om_miniVideo,om_collection
+          oper: '!in'
+      expression: "0"
+      return: trpc.inews.php_sumeru.main_port
+    target_service:
+      - service: trpc.inews.user_front.UserFront
+        weight: 10
+  - method: /gw/respub/GetResConfig
+    target_service:
+      - service: trpc.inews_trpc.respub.ResPub
+        weight: 10
+  - method: /gw/comment/getCommentBullets
+    target_service:
+      - service: trpc.inews_go.comment.http
+        weight: 10
+  - method: /gw/deeplink
+    rewrite: /trpc.qqnews.growth.Rpc/Deeplink
+    target_service:
+      - service: trpc.qqnews.growth.Http
+        weight: 10
+  - method: /gw/event/more
+    target_service:
+      - service: trpc.inews.php_sumeru.main_port
+        weight: 10
+  - method: /gw/event/list_by_id
+    target_service:
+      - service: trpc.inews.event_api.http
+        weight: 10
+  - method: /gw/event/list_care
+    target_service:
+      - service: trpc.inews.event_api.http
+        weight: 10
+  - method: /gw/event/more_care
+    target_service:
+      - service: trpc.inews.event_api.http
+        weight: 10
+  - method: (/gw/getCpNewsList|/gw/getUserFansCount)
+    is_regexp: true
+    target_service:
+      - service: trpc.inews.relation_front.front
+        weight: 10
+  - method: /gw/long_video/info
+    target_service:
+      - service: trpc.inews.bottom_page.http
+        weight: 10
+  - method: /gw/search/sug_entity
+    target_service:
+      - service: trpc.inews.php_sumeru.main_port
+        weight: 10
+  - method: /gw/sub/more_history
+    target_service:
+      - service: trpc.inews.relation_front.front
+        weight: 10
+  - method: /gw/tag/allGroup
+    target_service:
+      - service: trpc.inews.relation_front.front
+        weight: 10
+  - method: /gw/tag/category
+    target_service:
+      - service: trpc.inews.bottom_page.http
+        weight: 10
+  - method: /gw/up/getArticleVUpList
+    target_service:
+      - service: trpc.inews.subpage.SubPage
+        weight: 10
+  - method: /gw/tag/category_sport
+    target_service:
+      - service: trpc.inews.bottom_page.http
+        weight: 10
+  - method: /gw/tag/category_tag_list
+    target_service:
+      - service: trpc.inews.bottom_page.http
+        weight: 10
+  - method: /gw/tag/category_tag_list_sport
+    target_service:
+      - service: trpc.inews.bottom_page.http
+        weight: 10
+  - method: /gw/tag/tag_bottom_detail
+    target_service:
+      - service: trpc.inews.bottom_page.http
+        weight: 10
+  - method: /gw/user/privacy_data
+    target_service:
+      - service: trpc.inews.user_front.UserFront
+        weight: 10
+  - method: /gw/user/privacy_menu
+    target_service:
+      - service: trpc.inews.user_front.UserFront
+        weight: 10
+  - method: /gw/appFull/
+    target_service:
+      - service: go.newsgatewy.qqnews.com
+        weight: 10
+  - method: /gw/appTips/
+    target_service:
+      - service: go.newsgatewy.qqnews.com
+        weight: 10
+  - method: /gw/comment/
+    target_service:
+      - service: normal.inews.inews_comment_interface.main_port
+        weight: 10
+  - method: /gw/event/
+    target_service:
+      - service: trpc.inews.event_api.http
+        weight: 10
+  - method: /gw/hotActivity/
+    target_service:
+      - service: go.newsgatewy.qqnews.com
+        weight: 10
+  - method: /gw/long_video/
+    target_service:
+      - service: trpc.inews.bottom_page.http
+        weight: 10
+  - method: /gw/msgboard/
+    target_service:
+      - service: trpc.inews.msgboard.MsgBoard
+        weight: 10
+  - method: /gw/order/
+    target_service:
+      - service: cporder.qqnews.com
+        weight: 10
+  - method: /gw/rankcbt/
+    target_service:
+      - service: rankcbt.qqnews.com
+        weight: 10
+  - method: /gw/respub/
+    target_service:
+      - service: trpc.inews_trpc.respub.ResPub
+        weight: 10
+  - method: /gw/tag/
+    target_service:
+      - service: trpc.inews.subpage.SubPage
+        weight: 10
+  - method: /gw/user/
+    target_service:
+      - service: import.interface.webdev.com
+        weight: 10
+  - method: /gw/v1/StarRankList/
+    target_service:
+      - service: trpc.inews.StarRankList.StarRank
+        weight: 10
+  - method: /gw/v1/jingzhe/
+    target_service:
+      - service: trpc.inews.jingzhe.http
+        weight: 10
+  - method: /gw/video/
+    target_service:
+      - service: online.video.qqnews.com
+        weight: 10
+  - method: /gw/vote/
+    target_service:
+      - service: trpc.inews.vote.UserVote
+        weight: 10
+  - method: /gw/event/head
+    target_service:
+      - service: trpc.inews.event_api.http
+        weight: 10
+  - method: /i/getUserCheckInfo
+    target_service:
+      - service: trpc.inews.user_front.UserFront
+        weight: 10
+  - method: /i/updateUserInfo
+    target_service:
+      - service: trpc.inews.user_front.UserFrontSlow
+        weight: 10
+  - method: /comment/recommend
+    target_service:
+      - service: trpc.inews_go.comment.http
+        weight: 10
+  - method: /comment/hide
+    target_service:
+      - service: trpc.inews_go.comment.http
+        weight: 10
+  - method: /gw/user/setUserConfig
+    target_service:
+      - service: trpc.inews.user_front.UserFrontSlow
+        weight: 10
+  - method: /reportActualExpose
+    target_service:
+      - service: trpc.inews.report.Report
+        weight: 10
+  - method: /gw/event/list
+    target_service:
+      - service: trpc.inews.event_api.http
+        weight: 10
+  - method: (/gw/event/list_by_id|/gw/event/list_care|/gw/event/more_care)
+    is_regexp: true
+    target_service:
+      - service: trpc.inews.event_api.http
+        weight: 10
+  - method: /report_service
+    target_service:
+      - service: trpc.inews_go.report_service.HttpReporter
+        weight: 10
+  - method: /news_weibo/identityAuthHelp
+    target_service:
+      - service: trpc.inews.weibo.Http
+        weight: 10
+  - method: /web_feed/
+    target_service:
+      - service: trpc.inews_go.web_feed.http
+        weight: 10
+  - method: /v1/RankList/
+    target_service:
+      - service: go.ranking.qqnews.com
+        weight: 10
+  - method: /getStarRankingList
+    target_service:
+      - service: trpc.inews.weibo.Http
+        weight: 10
+  - method: /getNotifyBarList
+    target_service:
+      - service: notify.go.inews.qq.com
+        weight: 10
+  - method: /getTopicFansList
+    target_service:
+      - service: trpc.inews.weibo.Http
+        weight: 10
+  - method: /getNewsBottomRelateModule
+    target_service:
+      - service: sumeru_go.relate.inews.qq.com
+        weight: 10
+  - method: /getTrackingTokenValue
+    target_service:
+      - service: go.install_tracking.inews.qq.com
+        weight: 10
+  - method: /setTrackingTokenValue
+    target_service:
+      - service: go.install_tracking.inews.qq.com
+        weight: 10
+  - method: /i/
+    target_service:
+      - service: import.interface.webdev.com
+        weight: 10
+  - method: /i/getWeather
+    target_service:
+      - service: trpc.inews.user_front.UserFront
+        weight: 10
+  - method: /doraemon/secure
+    target_service:
+      - service: import.interface.webdev.com
+        weight: 10
+  - method: /radio/
+    target_service:
+      - service: normal.inews_go.inews_radio.main_port
+        weight: 100
+  - method: /novel/
+    target_service:
+      - service: go.novel.qqnews.com
+        weight: 10
+  - method: /search/userSug
+    target_service:
+      - service: qqnews.openapi.getNewsContents
+        weight: 10
+  - method: /(getTagFeedList|getQQNewsUnreadListDiscover)
+    is_regexp: true
+    target_service:
+      - service: normal.inews_go.swift_sec.main_port
+        weight: 10
+  - method: (/weibo/category/getMixList|/weibo/topic/getPreTopicId)
+    is_regexp: true
+    target_service:
+      - service: weibo.front.qqnews.com
+        weight: 10
+  - method: /news_feed/
+    target_service:
+      - service: trpc.inews_go.news_feed.http
+        weight: 10
+  - method: /news_feed/getSubTopTagList
+    target_service:
+      - service: normal.inews.swift.main_port
+        weight: 10
+  - method: /widget/v1/subTopTagList
+    target_service:
+      - service: trpc.inews.app_widget.http
+        weight: 10
+  - method: /navbar/channels
+    target_service:
+      - service: trpc.inews_care.navbar.NavbarHttp
+        weight: 10
+  - method: /getWxLogin
+    target_service:
+      - service: trpc.inews.user_front.UserFrontSlow
+        weight: 10
+  - method: /getSuid
+    target_service:
+      - service: trpc.inews.user_front.UserFront
+      - service: trpc.inews.user_front.UserFrontSlow
+        weight: 10
+  - method: /getRecommendSubList
+    target_service:
+      - service: trpc.inews.relation_front.front
+        weight: 10
+  - method: /getLottieConfig
+    target_service:
+      - service: trpc.inews.php_sumeru.main_port
+        weight: 10
+  - method: /(searchPage|verticalSearch|searchMore)
+    is_regexp: true
+    target_service:
+      - service: trpc.inews.php_sumeru.main_port
+        weight: 10
+  - method: /getCgiConfig
+    target_service:
+      - service: trpc.inews.user_front.UserFront
+        weight: 10
+      - service: trpc.inews.user_front.UserFrontSlow
+  - method: /search
+    target_service:
+      - service: trpc.inews.php_sumeru.main_port
+        weight: 10
+  - method: /(getQNChannels|getQNChannelInfo)
+    is_regexp: true
+    target_service:
+      - service: trpc.inews.navbar.NavbarHttp
+        weight: 10
+  - method: /getOpenQQNewsUnreadList
+    target_service:
+      - service: sumeru_go.swift_sec.qqnews.com
+      - service: normal.inews_go.swift_sec.main_port
+        weight: 100
+  - method: /(getQQNewsHotComment|getMySelectComments)
+    is_regexp: true
+    target_service:
+      - service: trpc.inews_go.comment.http
+        weight: 10
+  - method: /postWeibo
+    target_service:
+      - service: trpc.inews.weibo.Http
+        weight: 10
+  - method: /supportQQNewsComment
+    target_service:
+      - service: normal.inews.php_comment.main_port
+        weight: 10
+      - service: trpc.inews_go.comment.http
+  - method: /reportValidComment
+    target_service:
+      - service: trpc.inews_go.comment.http
+        weight: 10
+  - method: /delComment
+    target_service:
+      - service: normal.inews.php_comment.main_port
+        weight: 10
+  - method: /(getQQNewsOrigReplyComment|getQQNewsCommentThird|getQQNewsSupportCount)
+    is_regexp: true
+    target_service:
+      - service: trpc.inews_go.comment.http
+        weight: 10
+  - method: /shareQQNewsMulti
+    target_service:
+      - service: normal.inews.php_comment.main_port
+        weight: 10
+  - method: /shareQQNewsPic
+    target_service:
+      - service: normal.inews.php_comment.main_port
+        weight: 10
+  - method: /getMyComments
+    target_service:
+      - service: normal.inews.php_comment.main_port
+      - service: trpc.inews_go.comment.http
+        weight: 10
+  - method: /delWeibo
+    target_service:
+      - service: trpc.inews.weibo.Http
+        weight: 10
+  - method: /go/uploadGif
+    target_service:
+      - service: import.interface.webdev.com
+        weight: 10
+  - method: /go/user/delInvalidCount
+    target_service:
+      - service: trpc.inews.relation_front.front
+        weight: 10
+  - method: /go/user/deviceFollow
+    target_service:
+      - service: trpc.inews.relation_front.front
+        weight: 10
+  - method: /go/user/logout
+    target_service:
+      - service: trpc.inews.user_front.UserFront
+        weight: 10
+  - method: /go/user/multiFollow
+    target_service:
+      - service: trpc.inews.relation_front.front
+        weight: 10
+  - method: /go/
+    target_service:
+      - service: go.newsgatewy.qqnews.com
+        weight: 10
+  - method: /getNewsRelateModule
+    target_service:
+      - service: trpc.inews.php_import.main_port
+        weight: 10
+  - method: /(getMyMedalList|setDisplayMedal)
+    is_regexp: true
+    rule:
+      conditions:
+        - key: devid
+          val: 6f69e569e17273e4
+          oper: ==
+      expression: "0"
+      return: trpc.inews.user_front.UserFront
+    target_service:
+      - service: trpc.inews.user_front.UserFront
+        weight: 10
+  - method: /getUserFansList
+    target_service:
+      - service: trpc.inews.relation_front.front
+        weight: 10
+  - method: /getQQNewsComment
+    target_service:
+      - service: trpc.inews_go.comment.http
+        weight: 10
+  - method: /user/
+    target_service:
+      - service: trpc.inews.user_front.UserFront
+        weight: 10
+  - method: /gw/event/more_care
+    target_service:
+      - service: trpc.inews.event_api.http
+        weight: 10
+  - method: /i/doraemon
+    target_service:
+      - service: import.interface.webdev.com_slow
+        weight: 10
+  - method: /comment/pick
+    target_service:
+      - service: trpc.inews_go.comment.http
+        weight: 10
+  - method: /getSimpleVideo
+    target_service:
+      - service: trpc.inews.video.http
+        weight: 100
+  - method: /gw/search/result
+    target_service:
+      - service: trpc.inews.search_api.http
+        weight: 10
+  - method: /gw/pc_search/result
+    target_service:
+      - service: trpc.inews.search_api.http
+        weight: 10
+  - method: /getTwentyFourHourNews
+    target_service:
+      - service: trpc.inews_go.feed_ad.FeedAd
+        weight: 100
+      - service: normal.inews.qqnews.main_port
+  - method: /gw/event/syncSub
+    target_service:
+      - service: trpc.inews.relation_front.front
+        weight: 10
+  - method: /getQQNewsListItems
+    target_service:
+      - service: trpc.inews_go.feed_ad.FeedAd
+        weight: 100
+      - service: normal.inews.qqnews.main_port
+  - method: /getRecommendList
+    target_service:
+      - service: trpc.inews_go.feed_ad.FeedAd
+        weight: 100
+      - service: normal.inews.qqnews.main_port
+  - method: /getQQNewsIndexAndItems
+    target_service:
+      - service: trpc.inews_go.feed_ad.FeedAd
+        weight: 100
+      - service: normal.inews.qqnews.main_port
+  - method: /getQQNewsUnreadList
+    target_service:
+      - service: trpc.inews_go.feed_ad.FeedAd
+        weight: 100
+      - service: normal.inews.qqnews.main_port
+  - method: /v1/live/
+    target_service:
+      - service: normal.kong.kong_qingyun.http
+        weight: 10
+  - method: /syncPushSwitch
+    rewrite: /api/v1/switchreport
+    target_service:
+      - service: trpc.newspush_access.report_consumer.serviceHttp
+        weight: 10
+  - method: /internalPostWeibo
+    target_service:
+      - service: trpc.inews.weibo.Http
+        weight: 10
+  - method: /getWeiboOrigContent
+    target_service:
+      - service: trpc.inews.weibo.Http
+        weight: 10
+  - method: /getUpList
+    target_service:
+      - service: normal.inews.php_comment.main_port
+      - service: trpc.inews_go.comment.http
+        weight: 10
+  - method: /getReplyList
+    target_service:
+      - service: normal.inews.php_comment.main_port
+      - service: trpc.inews_go.comment.http
+        weight: 10
+  - method: /gw/comment/liveBroadcast
+    rule:
+      conditions:
+        - key: devid
+          val: D80ACAFB-EE54-4114-A0E3-68ABB42BF6C7,cd89b582df3f3291,E099F0E4-F21A-49A2-9D85-A2F2295E7171,6f69e569e17273e4,D3A5BC63-8E4B-45D9-97CB-BCC387269A6D,CFED6E21-71AC-47E9-B1E0-863E87B566D7,8cee76ea295bdc80,115E5D21-BB48-4921-8330-47AD60B2D6DA,ee61d80645c9438a,6DE008A0-B4C7-4D8F-8E66-9C8BF4DC9321,9B5899B8-CD46-4788-B6E6-2D552CD92EF4,6c5c8116-4acc-425e-92a8-5b676c786694,95e7b98a1ebc1ac2_123456789012345,2EBAADE0-E614-419F-AD16-841A52F6296B,a4f42628db607b43,2F30FD02-3221-49D6-9EAB-4A327146E387
+          oper: in
+      expression: "0"
+      return: trpc.inews_go.comment.http
+    target_service:
+      - service: barrage.webdev.com
+      - service: trpc.inews_go.comment.http
+        weight: 10
+  - method: /checkForUpdate
+    target_service:
+      - service: normal.inews.inews_pollcheck.main_port
+        weight: 10
+  - method: /i/getRecommendMediaList
+    target_service:
+      - service: trpc.inews.relation_front.front
+        weight: 10
+      - service: import.interface.webdev.com
+  - method: /alertUser
+    target_service:
+      - service: normal.inews.php_import.main_port
+      - service: trpc.inews.user_front.UserFront
+        weight: 10
+  - method: /internalDelWeibo
+    target_service:
+      - service: trpc.inews.weibo.Http
+        weight: 10
+  - method: /i/getONSDict
+    target_service:
+      - service: import.interface.webdev.com_slow
+        weight: 10
+  - method: /getblogshortcontextbysuid
+    target_service:
+      - service: trpc.inews.weibo.Http
+        weight: 10
+  - hash_key: devid
+    method: /getUserVideoList
+    rule:
+      conditions:
+        - key: devid
+          val: DB34DCEC-3329-4438-93CE-446FC9183A28
+          oper: ==
+      expression: "0"
+      return: trpc.inews.user_front.UserFront
+    target_service:
+      - service: trpc.inews.php_sumeru.main_port
+      - service: trpc.inews.user_front.UserFront
+        weight: 1000
+  - hash_key: devid
+    method: /getUserWeiboList
+    rule:
+      conditions:
+        - key: devid
+          val: ',6f69e569e17273e4,865737030133624,02C21E1B-DAB2-4E77-8555-5C6EEDA1E12E,6DE008A0-B4C7-4D8F-8E66-9C8BF4DC9321,D80ACAFB-EE54-4114-A0E3-68ABB42BF6C7,c9066f2c3bbd86db,655D4FAB-030C-4E2F-98EA-0C7F75A4BC52,DF1D0696-30EE-457F-A513-1E28B358F37F,7A7611EC-5954-4A09-87F7-B91C7D0D10CF'
+          oper: in
+      expression: "0"
+      return: trpc.inews.user_front.UserFront
+    target_service:
+      - service: trpc.inews.php_sumeru.main_port
+      - service: trpc.inews.user_front.UserFront
+        weight: 1000
+  - method: /getRepostList
+    target_service:
+      - service: trpc.inews.weibo.Http
+        weight: 10
+  - method: /getQQNewsConversationComment
+    target_service:
+      - service: normal.inews.php_comment.main_port
+      - service: trpc.inews_go.comment.http
+        weight: 100
+  - method: /pokeQQNewsComment
+    target_service:
+      - service: normal.inews.php_comment.main_port
+        weight: 10
+  - method: /getQQNewsRoseMsg
+    target_service:
+      - service: normal.inews.php_comment.main_port
+        weight: 10
+  - method: /getUpUserList
+    target_service:
+      - service: normal.inews.php_comment.main_port
+        weight: 10
+  - method: /reportNewUserTime
+    target_service:
+      - service: trpc.inews.report.Report
+        weight: 10
+  - method: /getMySubAndTagAndTopic
+    target_service:
+      - service: trpc.inews.relation_front.front
+        weight: 10
+  - method: /syncSubCp
+    target_service:
+      - service: trpc.inews.relation_front.front
+        weight: 10
+  - method: /comment/submitAnswer
+    target_service:
+      - service: trpc.inews_go.comment.http
+        weight: 10
+  - method: /comment/getQuestionList
+    target_service:
+      - service: trpc.inews_go.comment.http
+        weight: 10
+  - method: /WBbinding
+    target_service:
+      - service: trpc.inews.weibo.Http
+        weight: 10
+  - method: /newsFakeLikeAndPush
+    target_service:
+      - service: trpc.inews.weibo.Http
+        weight: 10
+  - method: /gw/page/event_detail
+    target_service:
+      - service: trpc.inews.page_api.PageApiHttp
+        weight: 10
+  - method: /getTopicWeiboList
+    target_service:
+      - service: trpc.inews.weibo.Http
+        weight: 10
+  - method: /go/switch/query
+    target_service:
+      - service: trpc.inews.primsg.PrimsgHTTP
+        weight: 10
+  - method: /go/switch/update
+    target_service:
+      - service: trpc.inews.primsg.PrimsgHTTP
+        weight: 10
+  - method: /(getSubNewsMsgGroup|getSubNewsMsgList|addSubNewsMsg|delSubNewsMsg)
+    is_regexp: true
+    target_service:
+      - service: trpc.inews.message.Message
+        weight: 10
+  - method: /gw/getSubTagFeedList
+    target_service:
+      - service: trpc.inews.relation_front.front
+        weight: 10
+  - method: /gw/tag/subList
+    target_service:
+      - service: trpc.inews.relation_front.front
+        weight: 10
+  - method: /getEmojiList
+    target_service:
+      - service: normal.inews.php_comment.main_port
+        weight: 10
+  - method: /gw/page/channel_feed
+    target_service:
+      - service: trpc.inews.page_api.PageApiHttp
+        weight: 10
+  - method: /UserFansMsgList
+    target_service:
+      - service: trpc.inews.relation_front.front
+        weight: 10
+  - method: /gw/getAllMyLikeList
+    target_service:
+      - service: trpc.inews.user_front.UserFront
+        weight: 10
+  - method: /i/getCommentGif
+    target_service:
+      - service: trpc.inews_go.comment.http
+        weight: 10
+  - method: /getWeiboRelateModule
+    target_service:
+      - service: trpc.inews.weibo.Http
+        weight: 10
+  - method: /gw/tag/syncSub
+    target_service:
+      - service: trpc.inews.relation_front.front
+        weight: 10
+  - method: /gw/page/templates_config
+    target_service:
+      - service: trpc.inews.page_api.PageApiHttp
+        weight: 10
+  - method: /api/v1/labels
+    target_service:
+      - service: trpc.newspush_access.tpns_report_server.HttpService
+        weight: 10
+  - method: /gw/likes/del
+    target_service:
+      - service: trpc.inews.relation_front.front
+        weight: 10
+  - method: /gw/type/subList
+    target_service:
+      - service: trpc.inews.relation_front.front
+        weight: 10
+  - method: /getWeiboRelateModuleCmt
+    target_service:
+      - service: trpc.inews.php_sumeru.main_port
+        weight: 10
+  - method: /getSubNewsContent
+    target_service:
+      - service: trpc.inews.weibo.Http
+        weight: 10
+  - method: /gw/livelist
+    target_service:
+      - service: trpc.qqcms.comment_read.CommentRead
+        weight: 10
+  - method: /gw/matchres
+    target_service:
+      - service: trpc.qqcms.comment_read.CommentRead
+        weight: 10
+  - method: /SubFloatingLayerSwitch
+    target_service:
+      - service: trpc.inews.relation_front.front
+        weight: 10
+  - method: /checkWeiboAbility
+    target_service:
+      - service: trpc.inews.weibo.Http
+        weight: 10
+  - method: /getAppealStatus
+    target_service:
+      - service: trpc.inews_go.comment.http
+        weight: 10
+  - method: /submitAppeal
+    target_service:
+      - service: trpc.inews_go.comment.http
+        weight: 10
+  - method: /gw/page/v2/event_detail
+    target_service:
+      - service: trpc.inews.page_api.PageApiHttp
+        weight: 10
+  - method: /inews_activity/red_flower/
+    target_service:
+      - service: trpc.inews.activity_service.RedFlower
+        weight: 10
+  - method: /v2/message/get_session_list
+    target_service:
+      - service: trpc.inews.message.Message
+        weight: 10
+  - method: /v2/message/get_message_list
+    target_service:
+      - service: trpc.inews.message.Message
+        weight: 10
+  - method: /ipwhere
+    target_service:
+      - service: ipcity.inews.qq.com
+        weight: 10
+  - method: /getVideoNewsMore
+    target_service:
+      - service: normal.inews.php_sumeru.main_port
+      - service: trpc.inews.video.http
+        weight: 100
+  - method: /getNewsRelateById
+    target_service:
+      - service: normal.inews.php_sumeru.main_port
+      - service: trpc.inews.video.http
+        weight: 100
+  - method: /videoIp/
+    target_service:
+      - service: normal.inews.php_sumeru.main_port
+        weight: 100
+      - service: trpc.inews.video.http
+  - method: /share/getSubNewsMixedList
+    target_service:
+      - service: trpc.inews.user_front.UserFront
+        weight: 10
+  - method: /gw/page/user_page
+    target_service:
+      - service: trpc.inews.page_api.PageApiHttp
+        weight: 10
+  - method: /gw/search/sug
+    target_service:
+      - service: trpc.inews.search_api.http
+        weight: 10
+  - method: /getLocation
+    target_service:
+      - service: location.openapi.inews.qq.com
+        weight: 10
+  - method: /image/view
+    target_service:
+      - service: trpc.news_image_inner.download.image_preview_http
+        weight: 10
+  - method: /gw/sub/v1/
+    target_service:
+      - service: trpc.inews.relation_front.front
+        weight: 10
+  - method: /getQQNewsLimitList
+    target_service:
+      - service: trpc.inews_go.channel_feed.ChannelFeed
+        weight: 100
+  - method: /gw/v1/report/art_report
+    rewrite: /v1/report/art_report
+    target_service:
+      - service: trpc.qq_news.creator_platform.ArticleReport
+        weight: 10
+  - method: /gw/search/guessLike
+    target_service:
+      - service: trpc.inews.search_api.http
+        weight: 10
+  - method: /gw/search/hotWord
+    target_service:
+      - service: trpc.inews.search_api.http
+        weight: 10
+  - method: /getCollIndexAndListitems
+    target_service:
+      - service: trpc.inews.user_backend.Collect
+        weight: 10
+  - method: /getBarrageList
+    target_service:
+      - service: normal.inews.php_comment.main_port
+        weight: 10
+
+  #-------------
+  - method: ^/regexp/prifix
+    is_regexp: true
+    id: "path/v1/creation/prifix-reg"
+    rewrite: /v1/creation/user_ext_info
+    target_service:
+      - service: trpc.qq_news.creator_platform.CreatorPlatform_quon
+        weight: 10
+    host:
+      - test.shizi.qq.com
+    plugins:
+
+  - method: /prifix
+    id: "path/v1/creation/prifix"
+    #strip_path: true
+    rewrite: /v1/creation/user_ext_info
+    target_service:
+      - service: trpc.qq_news.creator_platform.CreatorPlatform_quon
+        weight: 10
+        #strip_path: true
+        #rewrite: /v1/creation/user_ext_info
+    host:
+      - test.shizi.qq.com
+    plugins:
+  - method: /v1/creation/user_ext_info
+    id: "path/v1/creation/user_ext_info1"
+    target_service:
+      - service: trpc.qq_news.creator_platform.CreatorPlatform_quon
+        weight: 10
+    host:
+      - test.shizi.qq.com
+    plugins:
+  - method: /v1/trpc/creation/user_ext_info
+    id: "path/v1/creation/user_ext_info_trpc_1"
+    rewrite: /v1/system/date
+    target_service:
+      - service: trpc.qq_news.creator_platform.CreatorPlatform_rpc_quon
+        weight: 10
+    host:
+      - test.shizi.qq.com
+    plugins:
+  - method: /v1/creation/user_ext_info
+    id: "path/v1/creation/user_ext_info2"
+    target_service:
+      - service: trpc.qq_news.creator_platform.CreatorPlatform_quon
+        weight: 10
+        rewrite: /v1/creation/user_ext_info
+      - service: trpc.qq_news.creator_platform.CreatorPlatform_quon
+        weight: 10
+        rewrite: /v1/creation/user_ext_info1
+    host:
+      - test.shizi.qq.com
+    rule:
+      conditions:
+        - key: devid
+          val: xxxx,yyyyy
+          oper: in
+      expression: "0"
+  - method: /v1/creation/user_ext_info
+    id: "path/v1/creation/user_ext_info3"
+    host:
+      - shizi.qq.com
+    target_service:
+      - service: trpc.qq_news.creator_platform.CreatorPlatform_quon
+        weight: 10
+  - method: /user/info4
+    id: "path/v1/creation/user_ext_info3"
+    target_service:
+      - service: trpc.simple_server
+        weight: 10
+client:
+  - name: trpc.inews.message.Message
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://trpc.inews.message.Message
+    network: tcp
+    timeout: 800
+    protocol: fasthttp
+  - name: collect.inews.qq.com
+    env_name: formal
+    disable_servicerouter: true
+    namespace: Production
+    target: polaris://collect.inews.qq.com
+    network: tcp
+    timeout: 1800
+    protocol: fasthttp
+  - name: trpc.inews.vauth.VAuth
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://trpc.inews.vauth.VAuth
+    network: tcp
+    timeout: 800
+    protocol: fasthttp
+  - name: trpc.inews.user_front.UserFront
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://trpc.inews.user_front.UserFront
+    network: tcp
+    timeout: 1300
+    protocol: fasthttp
+  - name: trpc.inews.php_sumeru.main_port
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://trpc.inews.php_sumeru.main_port
+    network: tcp
+    timeout: 3000
+    protocol: fasthttp
+  - name: trpc.inews.user_front.UserFrontSlow
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://trpc.inews.user_front.UserFront
+    network: tcp
+    timeout: 1500
+    protocol: fasthttp
+  - name: trpc.inews_trpc.respub.ResPub
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://trpc.inews_trpc.respub.ResPub
+    network: tcp
+    timeout: 1000
+    protocol: fasthttp
+  - name: trpc.inews_go.comment.http
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://trpc.inews_go.comment.http
+    network: tcp
+    timeout: 2000
+    protocol: fasthttp
+  - name: trpc.qqnews.growth.Http
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://trpc.qqnews.growth.Http
+    network: tcp
+    timeout: 800
+    protocol: fasthttp
+  - name: trpc.inews.event_api.http
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://trpc.inews.event_api.http
+    network: tcp
+    timeout: 1500
+    protocol: fasthttp
+  - name: trpc.inews.relation_front.front
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://trpc.inews.relation_front.front
+    network: tcp
+    timeout: 2000
+    protocol: fasthttp
+  - name: trpc.inews.bottom_page.http
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://trpc.inews.bottom_page.http
+    network: tcp
+    timeout: 1000
+    protocol: fasthttp
+  - name: trpc.inews.subpage.SubPage
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://trpc.inews.subpage.SubPage
+    network: tcp
+    timeout: 1500
+    protocol: fasthttp
+  - name: go.newsgatewy.qqnews.com
+    env_name: formal
+    disable_servicerouter: true
+    namespace: Production
+    target: polaris://go.newsgatewy.qqnews.com
+    network: tcp
+    timeout: 800
+    protocol: fasthttp
+  - name: normal.inews.inews_comment_interface.main_port
+    env_name: formal
+    disable_servicerouter: true
+    namespace: Production
+    target: polaris://normal.inews.inews_comment_interface.main_port
+    network: tcp
+    timeout: 500
+    protocol: fasthttp
+  - name: trpc.inews.msgboard.MsgBoard
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://trpc.inews.msgboard.MsgBoard
+    network: tcp
+    timeout: 800
+    protocol: fasthttp
+  - name: cporder.qqnews.com
+    env_name: formal
+    disable_servicerouter: true
+    namespace: Production
+    target: polaris://cporder.qqnews.com
+    network: tcp
+    timeout: 500
+    protocol: fasthttp
+  - name: rankcbt.qqnews.com
+    env_name: formal
+    disable_servicerouter: true
+    namespace: Production
+    target: polaris://rankcbt.qqnews.com
+    network: tcp
+    timeout: 500
+    protocol: fasthttp
+  - name: import.interface.webdev.com
+    env_name: formal
+    disable_servicerouter: true
+    namespace: Production
+    target: polaris://import.interface.webdev.com
+    network: tcp
+    timeout: 2800
+    protocol: fasthttp
+  - name: trpc.inews.StarRankList.StarRank
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://trpc.inews.StarRankList.StarRank
+    network: tcp
+    timeout: 800
+    protocol: fasthttp
+  - name: trpc.inews.jingzhe.http
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://trpc.inews.jingzhe.http
+    network: tcp
+    timeout: 1000
+    protocol: fasthttp
+  - name: online.video.qqnews.com
+    env_name: formal
+    disable_servicerouter: true
+    namespace: Production
+    target: polaris://online.video.qqnews.com
+    network: tcp
+    timeout: 1500
+    protocol: fasthttp
+  - name: trpc.inews.vote.UserVote
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://trpc.inews.vote.UserVote
+    network: tcp
+    timeout: 800
+    protocol: fasthttp
+  - name: trpc.inews.report.Report
+    env_name: formal
+    disable_servicerouter: true
+    namespace: Production
+    target: polaris://64576705:196608
+    network: tcp
+    timeout: 1000
+    protocol: fasthttp
+  - name: trpc.inews_go.report_service.HttpReporter
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://trpc.inews_go.report_service.HttpReporter
+    network: tcp
+    timeout: 500
+    protocol: fasthttp
+  - name: trpc.inews.weibo.Http
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://trpc.inews.weibo.Http
+    network: tcp
+    timeout: 1800
+    protocol: fasthttp
+  - name: trpc.inews_go.web_feed.http
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://trpc.inews_go.web_feed.http
+    network: tcp
+    timeout: 1000
+    protocol: fasthttp
+  - name: go.ranking.qqnews.com
+    env_name: formal
+    disable_servicerouter: true
+    namespace: Production
+    target: polaris://go.ranking.qqnews.com
+    network: tcp
+    timeout: 500
+    protocol: fasthttp
+  - name: weibo.front.qqnews.com
+    env_name: formal
+    disable_servicerouter: true
+    namespace: Production
+    target: polaris://weibo.front.qqnews.com
+    network: tcp
+    timeout: 1000
+    protocol: fasthttp
+  - name: notify.go.inews.qq.com
+    env_name: formal
+    disable_servicerouter: true
+    namespace: Production
+    target: polaris://notify.go.inews.qq.com
+    network: tcp
+    timeout: 500
+    protocol: fasthttp
+  - name: sumeru_go.relate.inews.qq.com
+    env_name: formal
+    disable_servicerouter: true
+    namespace: Production
+    target: polaris://sumeru_go.relate.inews.qq.com
+    network: tcp
+    timeout: 1000
+    protocol: fasthttp
+  - name: go.install_tracking.inews.qq.com
+    env_name: formal
+    disable_servicerouter: true
+    namespace: Production
+    target: polaris://go.install_tracking.inews.qq.com
+    network: tcp
+    timeout: 300
+    protocol: fasthttp
+  - name: primsg.qqnews.com
+    env_name: formal
+    disable_servicerouter: true
+    namespace: Production
+    target: polaris://primsg.qqnews.com
+    network: tcp
+    timeout: 1000
+    protocol: fasthttp
+  - name: go.radio.qqnews.com
+    env_name: formal
+    disable_servicerouter: true
+    namespace: Production
+    target: polaris://go.radio.qqnews.com
+    network: tcp
+    timeout: 1500
+    protocol: fasthttp
+  - name: go.novel.qqnews.com
+    env_name: formal
+    disable_servicerouter: true
+    namespace: Production
+    target: polaris://go.novel.qqnews.com
+    network: tcp
+    timeout: 1000
+    protocol: fasthttp
+  - name: qqnews.openapi.getNewsContents
+    env_name: formal
+    disable_servicerouter: true
+    namespace: Production
+    target: polaris://qqnews.openapi.getNewsContents
+    network: tcp
+    timeout: 1500
+    protocol: fasthttp
+  - name: normal.inews_go.swift_sec.main_port
+    env_name: formal
+    disable_servicerouter: true
+    namespace: Production
+    target: polaris://normal.inews_go.swift_sec.main_port
+    network: tcp
+    timeout: 4000
+    protocol: fasthttp
+  - name: trpc.inews_go.news_feed.http
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://trpc.inews_go.news_feed.http
+    network: tcp
+    timeout: 1500
+    protocol: fasthttp
+  - name: normal.inews.swift.main_port
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://normal.inews.swift.main_port
+    network: tcp
+    timeout: 1500
+    protocol: fasthttp
+  - name: trpc.inews.app_widget.http
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://trpc.inews.app_widget.http
+    network: tcp
+    timeout: 1000
+    protocol: fasthttp
+  - name: trpc.inews_care.navbar.NavbarHttp
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://trpc.inews_care.navbar.NavbarHttp
+    network: tcp
+    timeout: 1500
+    protocol: fasthttp
+  - name: trpc.inews.navbar.NavbarHttp
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://trpc.inews.navbar.NavbarHttp
+    network: tcp
+    timeout: 1500
+    protocol: fasthttp
+  - name: sumeru_go.swift_sec.qqnews.com
+    env_name: formal
+    disable_servicerouter: true
+    namespace: Production
+    target: polaris://sumeru_go.swift_sec.qqnews.com
+    network: tcp
+    timeout: 1500
+    protocol: fasthttp
+  - name: normal.inews.php_comment.main_port
+    env_name: formal
+    disable_servicerouter: true
+    namespace: Production
+    target: polaris://normal.inews.php_comment.main_port
+    network: tcp
+    timeout: 2000
+    protocol: fasthttp
+  - name: trpc.inews.php_import.main_port
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://trpc.inews.php_import.main_port
+    network: tcp
+    timeout: 2000
+    protocol: fasthttp
+  - name: import.interface.webdev.com_slow
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://import.interface.webdev.com
+    network: tcp
+    timeout: 4000
+    protocol: fasthttp
+  - name: normal.inews.php_core.main_port
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://normal.inews.php_core.main_port
+    network: tcp
+    timeout: 2800
+    protocol: fasthttp
+  - name: trpc.inews.video.http
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://trpc.inews.video.http
+    network: tcp
+    timeout: 1500
+    protocol: fasthttp
+  - name: trpc.inews.search_api.http
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://trpc.inews.search_api.http
+    network: tcp
+    timeout: 3000
+    protocol: fasthttp
+  - name: normal.inews.qqnews.main_port
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://normal.inews.qqnews.main_port
+    network: tcp
+    timeout: 3500
+    protocol: fasthttp
+  - name: trpc.inews_go.feed_ad.FeedAd
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://trpc.inews_go.feed_ad.FeedAd
+    network: tcp
+    timeout: 3500
+    protocol: fasthttp
+  - name: normal.kong.kong_qingyun.http
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://normal.kong.kong_qingyun.http
+    network: tcp
+    timeout: 3000
+    protocol: fasthttp
+  - name: trpc.inews.primsg.Primsg
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://trpc.inews.primsg.Primsg
+    network: tcp
+    timeout: 1500
+    protocol: fasthttp
+  - name: trpc.newspush_access.report_consumer.serviceHttp
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://trpc.newspush_access.report_consumer.serviceHttp
+    network: tcp
+    timeout: 1000
+    protocol: fasthttp
+  - name: barrage.webdev.com
+    env_name: formal
+    disable_servicerouter: true
+    namespace: Production
+    target: polaris://barrage.webdev.com
+    network: tcp
+    timeout: 1000
+    protocol: fasthttp
+  - name: normal.inews.inews_pollcheck.main_port
+    env_name: formal
+    disable_servicerouter: true
+    namespace: Production
+    target: polaris://normal.inews.inews_pollcheck.main_port
+    network: tcp
+    timeout: 2000
+    protocol: fasthttp
+  - name: normal.inews.php_import.main_port
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://normal.inews.php_import.main_port
+    network: tcp
+    timeout: 2000
+    protocol: fasthttp
+  - name: trpc.inews.page_api.PageApiHttp
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://trpc.inews.page_api.PageApiHttp
+    network: tcp
+    timeout: 5000
+    protocol: fasthttp
+  - name: trpc.inews.primsg.PrimsgHTTP
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://trpc.inews.primsg.PrimsgHTTP
+    network: tcp
+    timeout: 1000
+    protocol: fasthttp
+  - name: normal.inews_go.inews_radio.main_port
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://normal.inews_go.inews_radio.main_port
+    network: tcp
+    timeout: 2000
+    protocol: fasthttp
+  - name: trpc.newspush_access.tpns_report_server.HttpService
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://trpc.newspush_access.tpns_report_server.HttpService
+    network: tcp
+    timeout: 1000
+    protocol: fasthttp
+  - name: trpc.qqcms.comment_read.CommentRead
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://trpc.qqcms.comment_read.CommentRead
+    network: tcp
+    timeout: 500
+    protocol: fasthttp
+  - name: trpc.inews.activity_service.http
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://trpc.inews.activity_service.http
+    network: tcp
+    timeout: 1000
+    protocol: fasthttp
+  - name: trpc.inews.activity_service.RedFlower
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://trpc.inews.activity_service.RedFlower
+    network: tcp
+    timeout: 1000
+    protocol: fasthttp
+  - name: ipcity.inews.qq.com
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://ipcity.inews.qq.com
+    network: tcp
+    timeout: 500
+    protocol: fasthttp
+  - name: normal.inews.php_sumeru.main_port
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://normal.inews.php_sumeru.main_port
+    network: tcp
+    timeout: 3000
+    protocol: fasthttp
+  - name: location.openapi.inews.qq.com
+    namespace: Production
+    disable_servicerouter: true
+    env_name: formal
+    target: polaris://location.openapi.inews.qq.com
+    network: tcp
+    timeout: 500
+    protocol: fasthttp
+  - name: trpc.news_image_inner.download.image_preview_http
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://trpc.news_image_inner.download.image_preview_http
+    network: tcp
+    timeout: 2000
+    protocol: fasthttp
+  - name: trpc.inews_go.channel_feed.ChannelFeed
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://trpc.inews_go.channel_feed.ChannelFeed
+    network: tcp
+    timeout: 3000
+    protocol: fasthttp
+  - name: trpc.qq_news.creator_platform.ArticleReport
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://trpc.qq_news.creator_platform.ArticleReport
+    network: tcp
+    timeout: 500
+    protocol: fasthttp
+  - name: trpc.inews.user_backend.Collect
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://trpc.inews.user_backend.Collect
+    network: tcp
+    timeout: 800
+    protocol: fasthttp
+
+  #--------1
+  - name: normal.inews.mockgateway.main_port
+    namespace: Development
+    target: polaris://normal.inews.mockgateway.main_port
+    env_name: f83c0a44
+    network: tcp
+    timeout: 8000
+    protocol: fasthttp
+    disable_servicerouter: true
+  - name: trpc.qq_news.creator_platform.CreatorPlatform_quon
+    namespace: Development
+    target: polaris://trpc.qq_news.creator_platform.CreatorPlatform_quon
+    env_name: f81a848f
+    network: tcp
+    timeout: 8000
+    protocol: fasthttp
+    disable_servicerouter: true
+    plugins:
+  - name: trpc.qq_news.creator_platform.CreatorPlatform_rpc_quon
+    namespace: Development
+    target: polaris://trpc.qq_news.creator_platform.CreatorPlatform_trpc_quon
+    env_name: f81a848f
+    network: tcp
+    timeout: 8000
+    protocol: trpc
+    disable_servicerouter: true
+  - name: trpc.simple_server
+    namespace: Development
+    target: ip://11.141.17.139:8888
+    #env_name: f81a848f
+    network: tcp
+    timeout: 8000
+    protocol: fasthttp
+    #disable_servicerouter: true2
+  - name: mock.service
+    namespace: Development
+    target: ip://11.141.17.139:8888
+    #env_name: f81a848f
+    network: tcp
+    timeout: 8000
+    protocol: fasthttp
+    #disable_servicerouter: true2
+  - name: trpc.inews.user_backend.Collect
+    disable_servicerouter: true
+    env_name: formal
+    namespace: Production
+    target: polaris://trpc.inews.user_backend.Collect
+    network: tcp
+    timeout: 800
+    protocol: fasthttp
+plugins:

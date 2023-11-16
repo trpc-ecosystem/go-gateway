@@ -1,0 +1,14 @@
+copyright_string_place_holder
+syntax = "proto3";
+package trpc.test.helloworld;
+option go_package="git.code.oa.com/trpcprotocol/test/trpc";
+service Greeter {
+  rpc SayHello (HelloRequest) returns (HelloReply) {}
+  rpc SayHi (HelloRequest) returns (HelloReply) {}
+}
+message HelloRequest {
+  string msg = 1;
+}
+message HelloReply {
+  string msg = 1;
+}

@@ -1,0 +1,19 @@
+router: # Router configuration
+  - method: /greeting # Exact match
+    target_service: # Upstream service
+      - service: trpc.user.service # Service name, corresponding to the name in the client configuration
+        weight: 10 # Service weight, the sum of weights cannot be 0
+        rewrite: /trpc.test.helloworld.Greeter/SayHello
+client: # Upstream service configuration, consistent with the trpc protocol
+  - name: trpc.user.service
+    namespace: Development
+    target: ip://127.0.0.1:8081
+    env_name: f81a848f
+    network: tcp
+    timeout: 8000
+    protocol: fasthttp # Forward to an HTTP interface
+    disable_servicerouter: true
+plugins:
+  - name: demo # Global plugin
+    props:
+      suid_name: suidxxxglobal

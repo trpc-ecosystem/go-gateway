@@ -1,0 +1,19 @@
+router:
+  - method: /user/info
+    target_service:
+      - service: trpc.inews.user.User
+client:
+  - name: trpc.inews.user.User
+    disable_servicerouter: false
+    namespace: Production
+    target: polaris://trpc.inews.user.User
+    network: tcp
+    timeout: 500
+    protocol: fasthttp
+    serialization: null
+    plugins:
+      - name: auth # Service-level plugin: Signature plugin
+        props:
+plugins:
+  - name: proxyinfo # Global configuration plugin: Proxy information reporting
+    props:

@@ -1,0 +1,22 @@
+global:                             # Global configuration
+  namespace: Development            # Environment type, divided into two types: "Production" and "Development"
+  env_name: test                    # Environment name, name for non-production environments
+server:                                            # Server configuration
+  app: test                                        # Application name for the business
+  server: trpc                               # Process service name
+  bin_path: /usr/local/trpc/bin/                   # Path to binary executable files and framework configuration files
+  conf_path: /usr/local/trpc/conf/                 # Path to business configuration files
+  data_path: /usr/local/trpc/data/                 # Path to business data files
+  service:                                         # Services provided by the business, can have multiple services
+    - name: trpc.test.http.Greeter          # Routing name for the service
+      ip: 127.0.0.1                                # Service listening IP address
+      port: 8081                                  # Service listening port
+      network: tcp                                 # Network listening type: tcp or udp
+      protocol: http                               # Application layer protocol: trpc or http
+      timeout: 1000                                # Maximum processing time for requests, in milliseconds
+client:                                            # Backend configuration for client calls
+plugins:                                           # Plugin configuration
+  log:                                             # Log configuration
+    default:                                       # Default log configuration, supports multiple outputs
+      - writer: console                            # Default console output
+        level: debug                               # Log level for console output
