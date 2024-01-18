@@ -19,7 +19,7 @@
 - [网关插件执行](#网关插件执行)
 
 # 路由逻辑
-![img.png](docs/router.png)
+![image](https://github.com/trpc-ecosystem/go-gateway/assets/37686381/a96d311a-df95-4c6b-bbab-a792872947ef)
 
 ### 匹配顺序
 
