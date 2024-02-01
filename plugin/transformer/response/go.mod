@@ -7,11 +7,9 @@ require (
 	github.com/tidwall/gjson v1.16.0
 	github.com/tidwall/sjson v1.2.5
 	github.com/valyala/fasthttp v1.45.0
-	trpc.group/trpc-go/trpc-gateway v0.0.4
+	trpc.group/trpc-go/trpc-gateway v1.0.0
 	trpc.group/trpc-go/trpc-go v0.0.0-20231008070952-27a655b3e79c
 )
-
-replace trpc.group/trpc-go/trpc-gateway v0.0.4 => ../../../
 
 require (
 	gopkg.in/yaml.v3 v3.0.1

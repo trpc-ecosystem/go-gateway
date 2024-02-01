@@ -3,7 +3,7 @@ module trpc.group/trpc-go/trpc-gateway/example
 go 1.18
 
 require (
-	trpc.group/trpc-go/trpc-gateway v0.0.5
+	trpc.group/trpc-go/trpc-gateway v1.0.0
 	trpc.group/trpc-go/trpc-go v0.0.0-20231008070952-27a655b3e79c
 )
 
@@ -42,5 +42,3 @@ require (
 	trpc.group/trpc-go/tnet v0.0.0-20230810071536-9d05338021cf // indirect
 	trpc.group/trpc/trpc-protocol/pb/go/trpc v0.0.0-20230803031059-de4168eb5952 // indirect
 )
-
-replace trpc.group/trpc-go/trpc-gateway v0.0.5 => ../../../

@@ -1,6 +1,6 @@
 module trpc.group/trpc-go/trpc-gateway/core/service/protocol/grpc
 
-go 1.19
+go 1.18
 
 require (
 	github.com/golang/mock v1.6.0
@@ -11,7 +11,7 @@ require (
 	github.com/stretchr/testify v1.8.2
 	github.com/valyala/fasthttp v1.45.0
 	google.golang.org/grpc v1.46.0
-	trpc.group/trpc-go/trpc-gateway v0.0.6
+	trpc.group/trpc-go/trpc-gateway v1.0.0
 	trpc.group/trpc-go/trpc-go v0.0.0-20231008070952-27a655b3e79c
 )
 
@@ -46,5 +46,3 @@ require (
 	trpc.group/trpc-go/tnet v0.0.0-20230810071536-9d05338021cf // indirect
 	trpc.group/trpc/trpc-protocol/pb/go/trpc v0.0.0-20230803031059-de4168eb5952 // indirect
 )
-
-replace trpc.group/trpc-go/trpc-gateway v0.0.6 => ../../../../

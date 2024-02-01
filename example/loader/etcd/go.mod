@@ -3,8 +3,8 @@ module trpc.group/trpc-go/trpc-gateway/example
 go 1.18
 
 require (
-	trpc.group/trpc-go/trpc-gateway v0.0.5
-	trpc.group/trpc-go/trpc-gateway/core/loader/etcd v0.0.1
+	trpc.group/trpc-go/trpc-gateway v1.0.0
+	trpc.group/trpc-go/trpc-gateway/core/loader/etcd v1.0.0
 	trpc.group/trpc-go/trpc-go v0.0.0-20231008070952-27a655b3e79c
 )
 
@@ -52,9 +52,4 @@ require (
 	trpc.group/trpc-go/tnet v0.0.0-20230810071536-9d05338021cf // indirect
 	trpc.group/trpc-go/trpc-config-etcd v0.0.0-20230829073930-07f202f52c32 // indirect
 	trpc.group/trpc/trpc-protocol/pb/go/trpc v0.0.0-20230803031059-de4168eb5952 // indirect
-)
-
-replace (
-	trpc.group/trpc-go/trpc-gateway v0.0.5 => ../../../
-	trpc.group/trpc-go/trpc-gateway/core/loader/etcd v0.0.1 => ./../../../core/loader/etcd
 )

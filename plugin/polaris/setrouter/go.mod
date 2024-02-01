@@ -6,11 +6,9 @@ require (
 	github.com/stretchr/testify v1.8.2
 	github.com/valyala/fasthttp v1.45.0
 	gopkg.in/yaml.v3 v3.0.1
-	trpc.group/trpc-go/trpc-gateway v0.0.4
+	trpc.group/trpc-go/trpc-gateway v1.0.0
 	trpc.group/trpc-go/trpc-go v0.0.0-20231008070952-27a655b3e79c
 )
-
-replace trpc.group/trpc-go/trpc-gateway v0.0.4 => ../../../
 
 require (
 	github.com/BurntSushi/toml v0.3.1 // indirect

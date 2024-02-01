@@ -2,12 +2,10 @@ module trpc.group/trpc-go/trpc-gateway/core/loader/etcd
 
 go 1.18
 
-replace trpc.group/trpc-go/trpc-gateway v0.0.4 => ../../../
-
 require (
 	gopkg.in/yaml.v3 v3.0.1
 	trpc.group/trpc-go/trpc-config-etcd v0.0.0-20230829073930-07f202f52c32
-	trpc.group/trpc-go/trpc-gateway v0.0.4
+	trpc.group/trpc-go/trpc-gateway v1.0.0
 	trpc.group/trpc-go/trpc-go v0.0.0-20231008070952-27a655b3e79c
 )
 

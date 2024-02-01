@@ -6,7 +6,7 @@ require (
 	github.com/stretchr/testify v1.8.2
 	github.com/valyala/fasthttp v1.45.0
 	go.opentelemetry.io/otel/trace v1.10.0
-	trpc.group/trpc-go/trpc-gateway v0.0.4
+	trpc.group/trpc-go/trpc-gateway v1.0.0
 	trpc.group/trpc-go/trpc-go v0.0.0-20231008070952-27a655b3e79c
 )
 
@@ -41,5 +41,3 @@ require (
 	trpc.group/trpc-go/tnet v0.0.0-20230810071536-9d05338021cf // indirect
 	trpc.group/trpc/trpc-protocol/pb/go/trpc v0.0.0-20230803031059-de4168eb5952 // indirect
 )
-
-replace trpc.group/trpc-go/trpc-gateway v0.0.4 => ../../
