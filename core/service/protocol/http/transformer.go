@@ -171,7 +171,7 @@ func (dph *ProtocolHandler) WithCtx(ctx context.Context) (context.Context, error
 	}
 	if reqUpType != "" || string(fctx.Request.Header.Peek("Accept-Encoding")) == "chunked" {
 		// Copy ctx, remove timeout. Websockets and HTTP chunked do not set a timeout.
-		//ctx = trpc.CloneContext(ctx)
+		// ctx = trpc.CloneContext(ctx)
 	}
 
 	header := &thttp.ClientReqHeader{
@@ -313,11 +313,11 @@ func (dph *ProtocolHandler) HandleRspBody(ctx context.Context, _ interface{}) er
 			defer rspHeader.Response.Body.Close()
 			// Since we're streaming the response, if we run into an error all we can do is abort the request.
 			// Issue 23643: ReverseProxy should use ErrAbortHandler on read error while copying body.
-			//if !shouldPanicOnCopyError(req) {
+			// if !shouldPanicOnCopyError(req) {
 			//	p.logf
 			//	("suppressing panic for copyResponse error in test; copy error: %v", err)
 			//	return
-			//}
+			// }
 			log.ErrorContextf(ctx, "copy response err:%s", err)
 			return
 		}
@@ -384,7 +384,7 @@ func (dph *ProtocolHandler) connProxy(ctx context.Context, conn net.Conn, res *s
 		// See issue https://golang.org/issue/35559.
 		select {
 		// TODO: Figure out how to handle this, can't get the original request's request
-		//case <-req.Context().Done():
+		// case <-req.Context().Done():
 		case <-backConnCloseCh:
 			log.DebugContextf(ctx, "backConnCloseCh done")
 		}
@@ -394,26 +394,96 @@ func (dph *ProtocolHandler) connProxy(ctx context.Context, conn net.Conn, res *s
 	defer close(backConnCloseCh)
 
 	defer conn.Close()
-	errc := make(chan error, 1)
-	spc := switchProtocolCopier{user: conn, backend: backConn}
+	errc := make(chan error, 2)
+	spc := switchProtocolCopier{user: conn, backend: backConn, exitChan: make(chan struct{}, 2)}
+	defer close(spc.exitChan)
 	go spc.copyToBackend(errc)
 	go spc.copyFromBackend(errc)
 	<-errc
+	<-errc
 }
 
-// switchProtocolCopier exists so goroutines proxying data back and forth have nice names in stacks.
+// switchProtocolCopier exists so goroutines proxying data back and
+// forth have nice names in stacks.
 type switchProtocolCopier struct {
 	user, backend io.ReadWriter
+	exitChan      chan struct{}
 }
 
 func (c switchProtocolCopier) copyToBackend(errc chan<- error) {
-	_, err := io.Copy(c.backend, c.user)
+	_, err := copyBuffer(c.backend, c.user, nil, c.exitChan)
 	errc <- err
 }
 
 func (c switchProtocolCopier) copyFromBackend(errc chan<- error) {
-	_, err := io.Copy(c.user, c.backend)
+	_, err := copyBuffer(c.user, c.backend, nil, c.exitChan)
 	errc <- err
+}
+
+// TestCoyBuffer 仅测试使用
+var TestCoyBuffer = copyBuffer
+
+// copyBuffer 参考了系统库 io.Copy 方法实现,由于双向连接可以是其中一端连接,所以一方关闭后要感知通知对方
+// 因此重写了 copy 方法
+func copyBuffer(dst io.Writer, src io.Reader, buf []byte, exitChan chan struct{}) (written int64, err error) {
+	// 写入退出管道
+	defer func() {
+		exitChan <- struct{}{}
+	}()
+	// If the reader has a WriteTo method, use it to do the copy.
+	// Avoids an allocation and a copy.
+	if wt, ok := src.(io.WriterTo); ok {
+		return wt.WriteTo(dst)
+	}
+	// Similarly, if the writer has a ReadFrom method, use it to do the copy.
+	if rt, ok := dst.(io.ReaderFrom); ok {
+		return rt.ReadFrom(src)
+	}
+	if buf == nil {
+		size := 32 * 1024
+		if l, ok := src.(*io.LimitedReader); ok && int64(size) > l.N {
+			if l.N < 1 {
+				size = 1
+			} else {
+				size = int(l.N)
+			}
+		}
+		buf = make([]byte, size)
+	}
+Loop:
+	for {
+		select {
+		case <-exitChan:
+			break Loop
+		default:
+			nr, er := src.Read(buf)
+			if nr > 0 {
+				nw, ew := dst.Write(buf[0:nr])
+				if nw < 0 || nr < nw {
+					nw = 0
+					if ew == nil {
+						ew = errors.New("invalid error message")
+					}
+				}
+				written += int64(nw)
+				if ew != nil {
+					err = ew
+					break Loop
+				}
+				if nr != nw {
+					err = io.ErrShortWrite
+					break Loop
+				}
+			}
+			if er != nil {
+				if er != io.EOF {
+					err = er
+				}
+				break Loop
+			}
+		}
+	}
+	return written, err
 }
 
 // Copy net/http response headers to fasthttp
