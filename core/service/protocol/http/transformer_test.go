@@ -103,7 +103,7 @@ func TestProtocolHandler_HandleRspBody(t *testing.T) {
 	stdRsp.Header = map[string][]string{}
 	msg.WithClientRspHead(&thttp.ClientRspHeader{
 		// TODO 等着 wineguo 给 merge 到 opensource 分支
-		//ManualReadBody: true,
+		// ManualReadBody: true,
 		Response: stdRsp,
 	})
 	err = dph.HandleRspBody(ctx, nil)
@@ -231,4 +231,95 @@ func TestConnProxy(t *testing.T) {
 
 	stdRsp.Body = io.NopCloser(strings.NewReader("xxx"))
 	http.TestConnProxy(context.Background(), rw, stdRsp)
+}
+
+type copyBufferWriterCloser struct {
+	buf []byte
+}
+
+func (cb *copyBufferWriterCloser) Write(p []byte) (int, error) {
+	cb.buf = append(cb.buf, p...)
+	return len(p), nil
+}
+func (cb *copyBufferWriterCloser) Read(p []byte) (int, error) {
+	if len(cb.buf) == 0 {
+		return 0, io.EOF
+	}
+	copy(p[0:len(cb.buf)], cb.buf)
+	len := len(cb.buf)
+	cb.buf = nil
+	return len, nil
+}
+
+func (*copyBufferWriterCloser) Close() error {
+	return nil
+}
+
+type Buffer struct {
+	bytes.Buffer
+	io.ReaderFrom // conflicts with and hides bytes.Buffer's ReaderFrom.
+	io.WriterTo   // conflicts with and hides bytes.Buffer's WriterTo.
+}
+
+func TestProtocolHandler_copyBuffer(t *testing.T) {
+	user := new(copyBufferWriterCloser)
+	backend := new(copyBufferWriterCloser)
+
+	backend.Write([]byte("123"))
+	exitChannel := make(chan struct{}, 2)
+
+	exitChannel <- struct{}{}
+	http.TestCoyBuffer(user, backend, nil, exitChannel)
+
+	assert.Nil(t, user.buf)
+	assert.NotNil(t, <-exitChannel)
+	assert.Equal(t, len(exitChannel), 0)
+
+	http.TestCoyBuffer(user, backend, nil, exitChannel)
+	assert.NotNil(t, user.buf)
+}
+
+func TestCopyReadFrom(t *testing.T) {
+	rb := new(Buffer)
+	wb := new(bytes.Buffer) // implements ReadFrom.
+	rb.WriteString("hello, world.")
+	http.TestCoyBuffer(wb, rb, nil, make(chan struct{}, 2))
+	if wb.String() != "hello, world." {
+		t.Errorf("Copy did not work properly")
+	}
+}
+
+func TestCopyWriteTo(t *testing.T) {
+	rb := new(bytes.Buffer) // implements WriteTo.
+	wb := new(Buffer)
+	rb.WriteString("hello, world.")
+	http.TestCoyBuffer(wb, rb, nil, make(chan struct{}, 2))
+	if wb.String() != "hello, world." {
+		t.Errorf("Copy did not work properly")
+	}
+}
+
+type errBufferWriterCloser struct {
+	buf []byte
+}
+
+func (cb *errBufferWriterCloser) Write(p []byte) (int, error) {
+	return -1, nil
+}
+func (cb *errBufferWriterCloser) Read(p []byte) (int, error) {
+	return 0, nil
+}
+
+func (*errBufferWriterCloser) Close() error {
+	return nil
+}
+
+func TestCopyWriteToErr(t *testing.T) {
+	backend := new(copyBufferWriterCloser)
+	backend.Write([]byte("123"))
+	wb := new(errBufferWriterCloser)
+	_, err := http.TestCoyBuffer(wb, backend, nil, make(chan struct{}, 2))
+	if err == nil {
+		t.Fatalf("error check")
+	}
 }
