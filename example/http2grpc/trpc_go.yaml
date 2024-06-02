@@ -1,0 +1,49 @@
+global: #global configuration
+  namespace: Development            #Environment type, divided into formal (production) and informal (development)
+  env_name: test                    #Environment name, the name of the environment in non-formal settings
+  conf_provider: file               #Storage method for configurations such as routes, plugins, etc., supports file, rainbow
+
+server: #server configuration
+  app: inews                                        #Business application name
+  server: gateway                             #Process service name
+  bin_path: /usr/local/trpc/bin/                   #Path where binary executable files and framework configuration files are located
+  conf_path: /usr/local/trpc/conf/                 #Path where business configuration files are located
+  data_path: /usr/local/trpc/data/                 #Path where business data files are located
+  filter:                                          #List of interceptors for all service processing functions
+  service: #Services provided by the business, can be multiple
+    - name: trpc.http.service    #Routing name of the service
+      ip: 127.0.0.1                            #Service listening IP address, can use placeholder ${ip}, choose between ip and nic, ip is preferred
+      port: 8000                #Service listening port, can use placeholder ${port}
+      network: tcp                             #Network listening type, tcp udp
+      protocol: fasthttp               #Application layer protocol, trpc http
+      timeout: 1000                            #Maximum request processing time, in milliseconds
+      max_cons: 100000                # Maximum number of service connections, default is 256*1024 if not filled
+      max_cons_per_ip: 10000          # Single IP connection limit, no limit by default
+      max_request_body_size: 8M     # Maximum request body size, units can be k, m, g or kb, mb, gb, etc. (case insensitive), default is 4M
+      read_buffer_size: 32k            # Read buffer size, default is 4096 bytes
+      filter:
+client: #Configuration of the backend called by the client
+  timeout: 1000                                    #Maximum processing time for all backend requests
+  namespace: Development                           #Environment for all backends
+  filter:                                          #List of interceptors for all backend call functions
+  service: #Configuration for a single backend
+    - name: trpc.inews.apistack.ApiStack      #Backend service's service name
+      namespace: Development                   #Backend service's environment
+      network: tcp                             #Backend service's network type, tcp udp, configuration is preferred
+      protocol: trpc               #Application layer protocol, trpc http
+      target: ip://127.0.0.1:8000              #Request service address
+      timeout: 1000                            #Maximum request processing time
+plugins: #Plugin configuration
+  log: #Log configuration
+    default: #Default log configuration, supports multiple outputs
+      - writer: console                           #Console standard output, default
+        level: debug                              #Standard output log level
+      - writer: file                              #Local file log
+        level: info                               #Local file rolling log level
+        writer_config:
+          filename: ./trpc.log                      #Path where the local file rolling log is stored
+          max_size: 10                              #Size of the local file rolling log, in MB
+          max_backups: 10                           #Maximum number of log files
+          max_age: 7                                #Maximum number of days the log is retained
+          compress: false                          #Whether the log file is compressed
+  gateway:

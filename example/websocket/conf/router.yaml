@@ -1,0 +1,16 @@
+router:
+  - method: /greeting
+    id: "path:/greeting"
+    target_service:
+      - service: trpc.websocket.service
+        weight: 10
+client:
+  - name: trpc.websocket.service
+    namespace: Development
+    target: ip://127.0.0.1:8081
+    env_name: f81a848f
+    network: tcp
+    timeout: 5000
+    protocol: http
+    disable_servicerouter: true
+plugins:

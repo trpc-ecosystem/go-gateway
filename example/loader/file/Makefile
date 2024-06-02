@@ -1,5 +1,3 @@
-GO = go
-DTOOLS = dtools
 TARGET = trpc-gateway
 SERVER = sever
 

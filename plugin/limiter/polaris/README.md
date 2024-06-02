@@ -1,22 +1,26 @@
 # tRPC-Gateway Polaris Distributed Rate Limiting Plugin
 
-This plugin is a wrapper based on the [polaris limiter](https://github.com/polarismesh/polaris-go/tree/main/api) and is used to dynamically add rate limiting configurations to the gateway interfaces. For more information on Polaris rate limiting capabilities.
+This plugin is a wrapper based on the [polaris limiter](https://github.com/polarismesh/polaris-go/tree/main/api) and is
+used to dynamically add rate limiting configurations to the gateway interfaces. For more information on Polaris rate
+limiting capabilities.
 
 ### Usage Instructions
 
 ### Add the corresponding rate limiting configurations in the Polaris console of the gateway service.
 
-Please refer to the [ratelimit](https://github.com/polarismesh/polaris-go/blob/main/examples/ratelimit/README.md) for details.
+Please refer to the [ratelimit](https://github.com/polarismesh/polaris-go/blob/main/examples/ratelimit/README.md) for
+details.
 
 ### Import the plugin in the main.go file of the gateway project.
 
 ```go
 import (
-   _ "trpc.group/trpc-go/trpc-gateway/plugin/limiter/polaris"
+_ "trpc.group/trpc-go/trpc-gateway/plugin/limiter/polaris"
 )
 ```
 
-- Configure the tRPC framework in the configuration file of the gateway project to enable the polaris_limiter interceptor.
+- Configure the tRPC framework in the configuration file of the gateway project to enable the polaris_limiter
+  interceptor.
 
 Note: Make sure to register it in server.service.filter instead of server.filter.
 
@@ -36,7 +40,8 @@ plugins: # Plugin configuration
       max_retries: 3 # Default maximum retries for rate limiting quotas
 ```
 
-Configure the plugin in the router.yaml file of the gateway project. It supports global, service, and router-level plugin configurations.
+Configure the plugin in the router.yaml file of the gateway project. It supports global, service, and router-level
+plugin configurations.
 
 ```yaml
 router: # Router configuration
@@ -68,6 +73,18 @@ plugins:
   - name: request_transformer # Global configuration, effective for all interfaces
     props:
 ```
+
+#### Rate limiting labels related operations
+
+#### Default labels
+
+method: The interface name, generally rate limiting can be done according to the interface.
+
+router_id: Gateway route ID, when the interface is duplicated, you can use router_id to configure rate limiting.
+
+#### Custom labels fetching function
+
+You can override the DefaultGetLabelFunc function to implement custom labels fetching logic.
 
 ## The plugin can also be used through the gateway console.
 

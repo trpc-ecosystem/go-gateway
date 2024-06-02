@@ -10,10 +10,10 @@ require (
 	github.com/stretchr/testify v1.8.2
 	github.com/valyala/fasthttp v1.45.0
 	go.uber.org/automaxprocs v1.3.0
-	golang.org/x/net v0.8.0
+	golang.org/x/net v0.17.0
 	gopkg.in/yaml.v3 v3.0.1
-	trpc.group/trpc-go/trpc-go v0.0.0-20231008070952-27a655b3e79c
-	trpc.group/trpc/trpc-protocol/pb/go/trpc v0.0.0-20230803031059-de4168eb5952
+	trpc.group/trpc-go/trpc-go v1.0.3
+	trpc.group/trpc/trpc-protocol/pb/go/trpc v1.0.0
 )
 
 require (
@@ -49,7 +49,7 @@ require (
 	go.uber.org/goleak v1.1.12 // indirect
 	go.uber.org/zap v1.24.0 // indirect
 	golang.org/x/sync v0.1.0 // indirect
-	google.golang.org/protobuf v1.30.0 // indirect
+	google.golang.org/protobuf v1.33.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
-	trpc.group/trpc-go/tnet v0.0.0-20230810071536-9d05338021cf // indirect
+	trpc.group/trpc-go/tnet v1.0.1 // indirect
 )

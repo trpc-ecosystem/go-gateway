@@ -248,24 +248,41 @@ func getLabels(ctx context.Context, labels []string, parseJSONBody bool) map[str
 		// Not an HTTP request
 		return labelMap
 	}
-	// Set the interface name
-	// TODO: This needs to be compatible with prefix matching for rate limiting.
-	//  The method should be passed from the route item.
 	labelMap["method"] = string(fctx.Path())
+	labelMap["router_id"] = gwmsg.GwMessage(ctx).RouterID()
 	for _, label := range labels {
-		if val := getParams(fctx, label, parseJSONBody); val != "" {
+		if val := getParams(ctx, label, parseJSONBody); val != "" {
 			labelMap[label] = val
 		}
 	}
 	return labelMap
 }
 
-// Get parameters
-func getParams(fctx *fasthttp.RequestCtx, label string, parseJSONBody bool) string {
+// GetLabelFunc defines the function to get label.
+type GetLabelFunc func(ctx context.Context, key string) string
+
+// DefaultGetLabelFunc is a function to get parameters, which can be overridden by yourself.
+var DefaultGetLabelFunc GetLabelFunc = func(ctx context.Context, label string) string {
+	fctx := http.RequestContext(ctx)
+	if fctx == nil {
+		return ""
+	}
 	if val := http.GetString(fctx, label); val != "" {
 		return val
 	}
+	return ""
+}
+
+// Get parameters
+func getParams(ctx context.Context, label string, parseJSONBody bool) string {
+	if val := DefaultGetLabelFunc(ctx, label); val != "" {
+		return val
+	}
 	if !parseJSONBody {
+		return ""
+	}
+	fctx := http.RequestContext(ctx)
+	if fctx == nil {
 		return ""
 	}
 	return gjson.Get(string(fctx.Request.Body()), label).String()

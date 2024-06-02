@@ -14,8 +14,6 @@ The implementation is based on the reverseproxy.go file in the net/http/httputil
 
 # Usage Considerations
 
-- Set the timeout in trpc_go.yaml server.service[0].timeout to 0 because WebSocket and HTTP chunked are long-lived connections.
-- The timeout in router.yaml client[0].timeout will be forcibly changed to 0.
 - HTTP chunked requests need to include the appropriate headers.
 - For all body reading operations in the gateway, the following check should be performed to exclude stream requests:
 

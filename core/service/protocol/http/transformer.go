@@ -209,7 +209,6 @@ func (dph *ProtocolHandler) GetCliOptions(_ context.Context) ([]client.Option, e
 	}
 	opts := []client.Option{
 		client.WithRspHead(rspHead),
-		client.WithTimeout(0),
 		client.WithCurrentSerializationType(codec.SerializationTypeNoop),
 		client.WithSerializationType(codec.SerializationTypeNoop),
 		client.WithCurrentCompressType(codec.CompressTypeNoop),
