@@ -153,3 +153,62 @@ tRPC-Gateway handles the following to accommodate both client-facing and trpc cl
       HTTP interfaces. For trpc clients, the calling party can retrieve the error information through the err code.
     - If you want to encapsulate the trpc err in the response body for client use, you can assemble the response body
       through plugins.
+
+## 1.8 Supporting custom TLS configurations
+
+The tRPC-Gateway provides users a way to register custom TLS configurations for incoming HTTPS requests. For example, when the tRPC-Gateway enables the mutual TLS for incoming requests，client certificate can be verified in the following way:
+
+First, configure the mutual TLS in trpc_go.yaml by filling in the tls_key, tls_cert, and ca_cert in server.service section.
+
+```yaml
+server: #server configuration
+  app: inews                                    #Business application name
+  server: gateway                               #Process service name
+  bin_path: /usr/local/trpc/bin/                #Path where binary executable files and framework configuration files are located
+  conf_path: /usr/local/trpc/conf/              #Path where business configuration files are located
+  data_path: /usr/local/trpc/data/              #Path where business data files are located
+  filter:                                       #List of interceptors for all service processing functions
+  service: #Services provided by the business, can be multiple
+    - name: trpc.http.service   #Routing name of the service
+      ip: 127.0.0.1             #Service listening IP address, can use placeholder ${ip}, choose between ip and nic, ip is preferred
+      port: 8000                #Service listening port, can use placeholder ${port}
+      network: tcp              #Network listening type, tcp udp
+      protocol: fasthttp        #Application layer protocol, trpc http
+      filter:
+
+      # configure mutual TLS 
+      tls_key: ./server.key     # server's private key
+      tls_cert: ./server.crt    # server's certificate
+      ca_cert: ./ca.pem         # client's CA certificate
+``` 
+ 
+
+Then, in main.go, register a custom client certificate validation function.
+```go
+func main() {
+	flag.Parse()
+	s := config.NewServer()
+	// register gateway service
+	fhttp.RegisterFastHTTPService(s)
+
+	// Use fhttp.WithTLSPeerVerifier to generate a configuration that verifies client certificates.
+	option := fhttp.WithTLSPeerVerifier(func(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
+
+		// The user-defined logic for certificate verification.
+		// Return nil directly if the verification is successful.
+	})
+	// Register the configuration into the gateway using fhttp.RegisterTLSConfig.
+	fhttp.RegisterTLSConfig(option)
+	if err := s.Serve(); err != nil {
+		log.Fatal(err)
+	}
+}
+```
+
+Using fhttp.RegisterTLSConfig, one or more TLS configurations can be registered at once. Currently, only fhttp.WithTLSPeerVerifier is provided, and more can be added as needed in the future.
+```go
+// RegisterTLSConfig 注册一个或多个 TLSOption 到网关中
+func RegisterTLSConfig(opts ...TLSOption) {
+	customTLSOptions = append(customTLSOptions, opts...)
+}
+```
