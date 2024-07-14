@@ -11,7 +11,7 @@ import (
 
 func TestRegisterTlsConfig(t *testing.T) {
 	RegisterTLSConfig(WithTLSPeerVerifier(func(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
-		t.Log("this is a test for tls peer verifier who return nil")
+		t.Log("this is a test for tls peer verifier who returns nil")
 		return nil
 	}))
 	tlsConfig := &tls.Config{}
@@ -21,7 +21,7 @@ func TestRegisterTlsConfig(t *testing.T) {
 
 	errStr := "this is a test for tls peer verifier"
 	RegisterTLSConfig(WithTLSPeerVerifier(func(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
-		t.Log("this is a test for tls peer verifier who return an error")
+		t.Log("this is a test for tls peer verifier who returns an error")
 		return errors.New(errStr)
 	}))
 	SetCustomTLSOptions(tlsConfig)
