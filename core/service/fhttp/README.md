@@ -159,7 +159,6 @@ tRPC-Gateway handles the following to accommodate both client-facing and trpc cl
 The tRPC-Gateway provides users a way to register custom TLS configurations for incoming HTTPS requests. For example, when the tRPC-Gateway enables the mutual TLS for incoming requests，client certificate can be verified in the following way:
 
 First, configure the mutual TLS in trpc_go.yaml by filling in the tls_key, tls_cert, and ca_cert in server.service section.
-
 ```yaml
 server: #server configuration
   app: inews                                    #Business application name
@@ -181,7 +180,6 @@ server: #server configuration
       tls_cert: ./server.crt    # server's certificate
       ca_cert: ./ca.pem         # client's CA certificate
 ``` 
- 
 
 Then, in main.go, register a custom client certificate validation function.
 ```go
@@ -207,7 +205,7 @@ func main() {
 
 Using fhttp.RegisterTLSConfig, one or more TLS configurations can be registered at once. Currently, only fhttp.WithTLSPeerVerifier is provided, and more can be added as needed in the future.
 ```go
-// RegisterTLSConfig 注册一个或多个 TLSOption 到网关中
+// RegisterTLSConfig registers one or more TLSOption into the gateway.
 func RegisterTLSConfig(opts ...TLSOption) {
 	customTLSOptions = append(customTLSOptions, opts...)
 }
