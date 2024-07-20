@@ -231,6 +231,7 @@ func generateTLSConfig(opts *transport.ListenServeOptions) (*tls.Config, error) 
 			tlsConf.ClientCAs = pool
 		}
 	}
+	SetCustomTLSOptions(tlsConf)
 	return tlsConf, nil
 }
 
