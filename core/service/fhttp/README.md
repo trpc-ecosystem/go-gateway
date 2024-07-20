@@ -154,7 +154,7 @@ tRPC-Gateway handles the following to accommodate both client-facing and trpc cl
     - If you want to encapsulate the trpc err in the response body for client use, you can assemble the response body
       through plugins.
 
-## 1.8 Supporting custom TLS configurations
+## 1.7 Supporting custom TLS configurations
 
 The tRPC-Gateway provides users a way to register custom TLS configurations for incoming HTTPS requests. For example, when the tRPC-Gateway enables the mutual TLS for incoming requests，client certificate can be verified in the following way:
 
