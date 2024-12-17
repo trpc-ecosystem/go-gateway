@@ -17,7 +17,9 @@ package request
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"runtime/debug"
+	"strconv"
 	"strings"
 
 	"github.com/tidwall/gjson"
@@ -40,7 +42,18 @@ const (
 	pluginName = "request_transformer"
 	// DelAllKey is a placeholder for deleting all operations
 	DelAllKey = "-1"
+
+	typeString  valType = "string"
+	typeNumber  valType = "number"
+	typeBool    valType = "bool"
+	typeDefault valType = ""
+
+	// ErrInvalidJSONType invalid value type
+	ErrInvalidJSONType = 10002
 )
+
+// valType JSON field type
+type valType string
 
 var (
 	strPostArgsContentType = []byte("application/x-www-form-urlencoded")
@@ -71,6 +84,8 @@ func (p *Plugin) Setup(string, plugin.Decoder) error {
 type KV struct {
 	Key string
 	Val string
+	// converted value for Val,current supported types include: bool number string
+	ConvertedVal interface{}
 }
 
 // Options represents the parameter options
@@ -158,10 +173,9 @@ func (p *Plugin) CheckConfig(name string, decoder plugin.Decoder) error {
 			return gerrs.Wrap(err, "add headers config error")
 		}
 	}
-
 	// Parse query parameters
 	if len(options.AddQueryStr) != 0 {
-		options.AddQueryStrKV, err = getKV(options.AddQueryStr)
+		options.AddQueryStrKV, err = getAddKV(options.AddQueryStr)
 		if err != nil {
 			return gerrs.Wrap(err, "add query string config error")
 		}
@@ -169,7 +183,7 @@ func (p *Plugin) CheckConfig(name string, decoder plugin.Decoder) error {
 
 	// Parse configuration
 	if len(options.AddBody) != 0 {
-		options.AddBodyKV, err = getKV(options.AddBody)
+		options.AddBodyKV, err = getAddKV(options.AddBody)
 		if err != nil {
 			return gerrs.Wrap(err, "add body config error")
 		}
@@ -197,6 +211,68 @@ func getKV(list []string) ([]*KV, error) {
 		})
 	}
 	return kvList, nil
+}
+
+// getAddKV retrieves the key-value configuration
+func getAddKV(list []string) ([]*KV, error) {
+	var kvList []*KV
+	for _, v := range list {
+		if v == "" {
+			continue
+		}
+		kv := &KV{}
+		arr := strings.Split(v, ":")
+		if len(arr) < 2 {
+			return nil, errs.New(gerrs.ErrWrongConfig, "invalid kv config")
+		}
+		if arr[0] == "" {
+			continue
+		}
+		kv.Key = arr[0]
+		val := arr[1]
+		var defaultValType valType
+		if len(arr) == 2 {
+			// 兼容旧版本，默认 string
+			defaultValType = typeString
+		} else {
+			if arr[2] == "" {
+				return nil, errs.New(gerrs.ErrWrongConfig, "invalid add kv config:value type not config")
+			}
+			defaultValType = valType(arr[2])
+		}
+		convertedVal, err := convertJSONVal(val, defaultValType)
+		if err != nil {
+			return nil, gerrs.Wrap(err, "convert json val err")
+		}
+		kv.Val = val
+		kv.ConvertedVal = convertedVal
+		kvList = append(kvList, kv)
+	}
+	return kvList, nil
+}
+
+// Convert the type of JSON value
+func convertJSONVal(val string, valType valType) (interface{}, error) {
+	switch valType {
+	case typeString:
+		return fmt.Sprint(val), nil
+	case typeNumber:
+		floatValue, err := strconv.ParseFloat(val, 64)
+		if err != nil {
+			return nil, gerrs.Wrapf(err, "to float err,val:%s", val)
+		}
+		return floatValue, nil
+	case typeBool:
+		boolVal, err := strconv.ParseBool(val)
+		if err != nil {
+			return nil, gerrs.Wrapf(err, "parse bool err:%s", val)
+		}
+		return boolVal, nil
+	case typeDefault:
+		return val, nil
+	default:
+		return nil, errs.Newf(ErrInvalidJSONType, "invalid type:%s", valType)
+	}
 }
 
 // ServerFilter sets up server-side CORS validation
@@ -316,7 +392,7 @@ func addBody(ctx context.Context, request *fasthttp.Request, kv *KV) {
 		return
 	}
 	if bytes.HasPrefix(request.Header.ContentType(), strJSONContentType) {
-		newBody, _ := sjson.SetBytes(request.Body(), kv.Key, kv.Val)
+		newBody, _ := sjson.SetBytes(request.Body(), kv.Key, kv.ConvertedVal)
 		request.SetBody(newBody)
 		return
 	}
@@ -340,6 +416,9 @@ func renameOption(ctx context.Context, request *fasthttp.Request, options *Optio
 	if len(options.RenameHeadersKV) != 0 {
 		for _, kv := range options.RenameHeadersKV {
 			val := request.Header.Peek(kv.Key)
+			if val == nil {
+				continue
+			}
 			request.Header.DisableNormalizing()
 			request.Header.SetBytesV(kv.Val, val)
 			request.Header.EnableNormalizing()
@@ -349,7 +428,11 @@ func renameOption(ctx context.Context, request *fasthttp.Request, options *Optio
 	// Rename query parameters
 	if len(options.RenameQueryStrKV) != 0 {
 		for _, kv := range options.RenameQueryStrKV {
-			request.URI().QueryArgs().SetBytesV(kv.Val, request.URI().QueryArgs().Peek(kv.Key))
+			val := request.URI().QueryArgs().Peek(kv.Key)
+			if val == nil {
+				continue
+			}
+			request.URI().QueryArgs().SetBytesV(kv.Val, val)
 			request.URI().QueryArgs().Del(kv.Key)
 		}
 	}
@@ -357,39 +440,53 @@ func renameOption(ctx context.Context, request *fasthttp.Request, options *Optio
 	// Rename query body parameters
 	if len(options.RenameBodyKV) != 0 {
 		for _, kv := range options.RenameBodyKV {
-			renameBody(ctx, request, kv)
+			modified := renameBody(ctx, request, kv)
+			if modified {
+				modifyBody = true
+			}
 		}
-		modifyBody = true
 	}
 	return modifyBody
 }
 
-func renameBody(ctx context.Context, request *fasthttp.Request, kv *KV) {
+func renameBody(ctx context.Context, request *fasthttp.Request, kv *KV) bool {
 	// Handle different content types
 	if bytes.HasPrefix(request.Header.ContentType(), strPostArgsContentType) {
-		request.PostArgs().SetBytesV(kv.Val, request.PostArgs().Peek(kv.Key))
+		val := request.PostArgs().Peek(kv.Key)
+		if val == nil {
+			return false
+		}
+		request.PostArgs().SetBytesV(kv.Val, val)
 		request.PostArgs().Del(kv.Key)
-		return
+		return true
 	}
 	if bytes.HasPrefix(request.Header.ContentType(), strJSONContentType) {
-		newBody, _ := sjson.SetBytes(request.Body(), kv.Val, gjson.GetBytes(request.Body(), kv.Key).Value())
+		val := gjson.GetBytes(request.Body(), kv.Key)
+		if !val.Exists() {
+			return false
+		}
+		newBody, _ := sjson.SetBytes(request.Body(), kv.Val, val.Value())
 		newBody, _ = sjson.DeleteBytes(newBody, kv.Key)
 		request.SetBody(newBody)
-		return
+		return true
 	}
 	if bytes.HasPrefix(request.Header.ContentType(), strMultipartFormData) {
 		form, err := request.MultipartForm()
 		if err != nil {
-			log.ErrorContextf(ctx, "get multipart error: %s", err)
-			return
+			log.ErrorContextf(ctx, "get multipart err:%s", err)
+			return false
 		}
-		form.Value[kv.Val] = form.Value[kv.Key]
+		val := form.Value[kv.Key]
+		if val == nil {
+			return false
+		}
+		form.Value[kv.Val] = val
 		delete(form.Value, kv.Key)
-		return
+		return true
 	}
 	// Do nothing for other content types
 	log.WarnContextf(ctx, "unsupported content-type: %s", request.Header.ContentType())
-	return
+	return false
 }
 
 // Delete operation

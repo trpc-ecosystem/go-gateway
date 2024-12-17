@@ -46,6 +46,10 @@ router: # Router configuration
             - key: val
           add_body: # Add request body parameters
             - key: val
+            # support for specified types:number、string、bool
+            - key_bool:true:bool
+            - key_num:1:number
+            - key_str:hi:string
           add_query_str: # Add URL query parameters
             - key: val
           reserve_headers: # Only keep specified request headers, higher priority than remove_headers, -1 means remove all
