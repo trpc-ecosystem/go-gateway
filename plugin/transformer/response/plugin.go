@@ -255,11 +255,11 @@ func convertJSONVal(val string, valType valType) (interface{}, error) {
 	case typeString:
 		return fmt.Sprint(val), nil
 	case typeNumber:
-		intVal, err := strconv.ParseInt(val, 10, 32)
+		floatValue, err := strconv.ParseFloat(val, 64)
 		if err != nil {
-			return nil, gerrs.Wrapf(err, "convert to int error, val: %s", val)
+			return nil, gerrs.Wrapf(err, "to float err,val:%s", val)
 		}
-		return int32(intVal), nil
+		return floatValue, nil
 	case typeBool:
 		boolVal, err := strconv.ParseBool(val)
 		if err != nil {
