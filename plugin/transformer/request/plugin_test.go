@@ -420,7 +420,6 @@ func Test_addBody(t *testing.T) {
 	})
 	assert.Equal(t, "true", string(fctx.Request.PostArgs().Peek("key_bool")))
 	fctx.Request.ResetBody()
-
 	fctx.Request.Header.SetContentTypeBytes(strJSONContentType)
 	fctx.Request.SetBodyString(`{}`)
 	addBody(context.Background(), &fctx.Request, &KV{
