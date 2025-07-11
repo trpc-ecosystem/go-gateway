@@ -2,7 +2,7 @@
 //
 // Tencent is pleased to support the open source community by making tRPC available.
 //
-// Copyright (C) 2023 THL A29 Limited, a Tencent company.
+// Copyright (C) 2023 Tencent.
 // All rights reserved.
 //
 // If you have downloaded a copy of the tRPC source code from Tencent,
@@ -22,6 +22,7 @@ import (
 	_ "trpc.group/trpc-go/trpc-gateway/core/loader/etcd"
 	"trpc.group/trpc-go/trpc-gateway/core/service/fhttp"
 	"trpc.group/trpc-go/trpc-go/log"
+
 	// Register upstream protocol
 	_ "trpc.group/trpc-go/trpc-gateway/core/service/protocol/fasthttp"
 	_ "trpc.group/trpc-go/trpc-gateway/core/service/protocol/trpc"
