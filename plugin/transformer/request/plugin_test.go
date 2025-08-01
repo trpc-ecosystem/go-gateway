@@ -35,7 +35,13 @@ func TestPlugin_CheckConfig(t *testing.T) {
 		RenameBody:     []string{"", ":aaa", "old_query_body:new_query_body"},
 		AddHeaders:     []string{"", ":aaa", "new_header:new_header_val"},
 		AddQueryStr:    []string{"", ":aaa", "new_query_str:new_query_val"},
-		AddBody:        []string{"", ":aaa", "new_query_body:new_query_body_val"},
+		AddBody: []string{"", ":aaa",
+			"new_query_body:new_query_body_val",
+			"key_bool:true:bool",
+			"key_num:1:number",
+			"key_float_num:1.0:number",
+			"key_str:hi:string",
+		},
 	}
 	p := &Plugin{}
 	_ = p.Setup("", nil)
@@ -82,6 +88,20 @@ func TestPlugin_CheckConfig(t *testing.T) {
 	// AddQueryBody invalid
 	tmp = options.AddBody
 	options.AddBody = []string{":key", "old_header", ""}
+	err = p.CheckConfig("", decoder)
+	assert.NotNil(t, err)
+	options.AddBody = tmp
+
+	// AddBody invalid
+	tmp = options.AddBody
+	options.AddBody = []string{
+		"invalid_type_oldkey:invalid_type_newkey:a:number",
+	}
+	err = p.CheckConfig("", decoder)
+	assert.NotNil(t, err)
+	options.AddBody = []string{
+		"not_support_oldkey:not_support_newkey:1:int32",
+	}
 	err = p.CheckConfig("", decoder)
 	assert.NotNil(t, err)
 	options.AddBody = tmp
@@ -382,20 +402,55 @@ func Test_addBody(t *testing.T) {
 	fctx := &fasthttp.RequestCtx{}
 	fctx.Request.Header.SetContentTypeBytes(strPostArgsContentType)
 	addBody(context.Background(), &fctx.Request, &KV{
-		Key: "key",
-		Val: "val",
+		Key:          "key",
+		Val:          "val",
+		ConvertedVal: "val",
 	})
 	assert.Equal(t, "val", string(fctx.Request.PostArgs().Peek("key")))
-
+	addBody(context.Background(), &fctx.Request, &KV{
+		Key:          "key_num",
+		Val:          "1",
+		ConvertedVal: 1,
+	})
+	assert.Equal(t, "1", string(fctx.Request.PostArgs().Peek("key_num")))
+	addBody(context.Background(), &fctx.Request, &KV{
+		Key:          "key_bool",
+		Val:          "true",
+		ConvertedVal: true,
+	})
+	assert.Equal(t, "true", string(fctx.Request.PostArgs().Peek("key_bool")))
+	fctx.Request.ResetBody()
 	fctx.Request.Header.SetContentTypeBytes(strJSONContentType)
 	fctx.Request.SetBodyString(`{}`)
 	addBody(context.Background(), &fctx.Request, &KV{
-		Key: "key",
-		Val: "val",
+		Key:          "key",
+		Val:          "val",
+		ConvertedVal: "val",
 	})
 	assert.Equal(t, `{"key":"val"}`, string(fctx.Request.Body()))
-
 	fctx.Request.ResetBody()
+	addBody(context.Background(), &fctx.Request, &KV{
+		Key:          "key_num",
+		Val:          "1",
+		ConvertedVal: 1,
+	})
+	assert.Equal(t, `{"key_num":1}`, string(fctx.Request.Body()))
+	fctx.Request.ResetBody()
+	addBody(context.Background(), &fctx.Request, &KV{
+		Key:          "key_num",
+		Val:          "1.0",
+		ConvertedVal: 1.0,
+	})
+	assert.Equal(t, `{"key_num":1}`, string(fctx.Request.Body()))
+	fctx.Request.ResetBody()
+	addBody(context.Background(), &fctx.Request, &KV{
+		Key:          "key_bool",
+		Val:          "true",
+		ConvertedVal: true,
+	})
+	assert.Equal(t, `{"key_bool":true}`, string(fctx.Request.Body()))
+	fctx.Request.ResetBody()
+
 	formBody := `------WebKitFormBoundaryWrGPeYfXRBUkQimG
 Content-Disposition: form-data; name="another"
 
@@ -404,19 +459,33 @@ another_val
 	fctx.Request.SetBodyString(formBody)
 	fctx.Request.Header.SetContentType("multipart/form-data; boundary=----WebKitFormBoundaryWrGPeYfXRBUkQimG")
 	addBody(context.Background(), &fctx.Request, &KV{
-		Key: "key",
-		Val: "val",
+		Key:          "key",
+		Val:          "val",
+		ConvertedVal: "val",
 	})
 
 	form, err := fctx.Request.MultipartForm()
 	assert.Nil(t, err)
 	assert.Equal(t, "val", form.Value["key"][0])
+	addBody(context.Background(), &fctx.Request, &KV{
+		Key:          "key_num",
+		Val:          "1",
+		ConvertedVal: 1,
+	})
+	assert.Equal(t, "1", form.Value["key_num"][0])
+	addBody(context.Background(), &fctx.Request, &KV{
+		Key:          "key_bool",
+		Val:          "true",
+		ConvertedVal: true,
+	})
+	assert.Equal(t, "true", form.Value["key_bool"][0])
 
 	fctx.Request.Header.SetContentType("application/plain")
 	fctx.Request.SetBodyString("")
 	addBody(context.Background(), &fctx.Request, &KV{
-		Key: "key",
-		Val: "key1",
+		Key:          "key",
+		Val:          "val",
+		ConvertedVal: "key1",
 	})
 	assert.Equal(t, ``, string(fctx.Request.Body()))
 }
@@ -425,21 +494,40 @@ func Test_renameBody(t *testing.T) {
 	fctx := &fasthttp.RequestCtx{}
 	fctx.Request.Header.SetContentTypeBytes(strPostArgsContentType)
 	fctx.Request.PostArgs().Set("key", "val")
-	renameBody(context.Background(), &fctx.Request, &KV{
+	modified := renameBody(context.Background(), &fctx.Request, &KV{
 		Key: "key",
 		Val: "key1",
 	})
+	assert.True(t, modified)
 	assert.Equal(t, "val", string(fctx.Request.PostArgs().Peek("key1")))
+	// 为找到要修改参数时，忽略变更，获取参数时应为空值
+	modified = renameBody(context.Background(), &fctx.Request, &KV{
+		Key: "key2",
+		Val: "key2",
+	})
+	assert.False(t, modified)
+	assert.Equal(t, "", string(fctx.Request.PostArgs().Peek("key2")))
 
 	fctx.Request.Header.SetContentTypeBytes(strJSONContentType)
 	fctx.Request.SetBodyString(`{"key":"val"}`)
-	renameBody(context.Background(), &fctx.Request, &KV{
+	modified = renameBody(context.Background(), &fctx.Request, &KV{
 		Key: "key",
 		Val: "key1",
 	})
+	assert.True(t, modified)
 	assert.Equal(t, `{"key1":"val"}`, string(fctx.Request.Body()))
-
 	fctx.Request.ResetBody()
+	// 为找到要修改参数时，忽略变更
+	fctx.Request.Header.SetContentTypeBytes(strJSONContentType)
+	fctx.Request.SetBodyString(`{"key":"val"}`)
+	modified = renameBody(context.Background(), &fctx.Request, &KV{
+		Key: "key1",
+		Val: "key1",
+	})
+	assert.False(t, modified)
+	assert.Equal(t, `{"key":"val"}`, string(fctx.Request.Body()))
+	fctx.Request.ResetBody()
+
 	formBody := `------WebKitFormBoundaryWrGPeYfXRBUkQimG
 Content-Disposition: form-data; name="key"
 
@@ -447,14 +535,22 @@ val
 ------WebKitFormBoundaryWrGPeYfXRBUkQimG--`
 	fctx.Request.SetBodyString(formBody)
 	fctx.Request.Header.SetContentType("multipart/form-data; boundary=----WebKitFormBoundaryWrGPeYfXRBUkQimG")
-	renameBody(context.Background(), &fctx.Request, &KV{
+	modified = renameBody(context.Background(), &fctx.Request, &KV{
 		Key: "key",
 		Val: "key1",
 	})
 
 	form, err := fctx.Request.MultipartForm()
+	assert.True(t, modified)
 	assert.Nil(t, err)
 	assert.Equal(t, "val", form.Value["key1"][0])
+
+	modified = renameBody(context.Background(), &fctx.Request, &KV{
+		Key: "key2",
+		Val: "key2",
+	})
+	assert.False(t, modified)
+	assert.Nil(t, err)
 
 	fctx.Request.Header.SetContentType("application/plain")
 	fctx.Request.SetBodyString("")
